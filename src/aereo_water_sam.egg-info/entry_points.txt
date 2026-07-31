@@ -1,7 +1,0 @@
-[console_scripts]
-waterseg-evaluate = waterseg.cli.evaluate:main
-waterseg-hybrid-infer = waterseg.cli.hybrid_infer:main
-waterseg-infer = waterseg.cli.infer:main
-waterseg-prepare = waterseg.cli.prepare:main
-waterseg-sweep = waterseg.cli.sweep:main
-waterseg-train = waterseg.cli.train:main

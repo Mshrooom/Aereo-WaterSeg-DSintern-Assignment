@@ -44,3 +44,10 @@ checkpoints/
 .idea/
 .DS_Store
 Thumbs.db
+# Local model artifacts
+artifacts/
+checkpoints/
+*.pt
+*.pth
+*.bin
+*.safetensors

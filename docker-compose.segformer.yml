@@ -1,0 +1,17 @@
+services:
+  water-segmentation:
+    build:
+      context: .
+      dockerfile: Dockerfile.segformer
+    image: aereo-water-segformer:1.0.0
+    ports:
+      - "8000:8000"
+    environment:
+      SEGFORMER_CHECKPOINT: /models/segformer_best
+      DEVICE: cpu
+      MODEL_THRESHOLD: ""
+      MAX_UPLOAD_MB: "25"
+      LOG_LEVEL: INFO
+    volumes:
+      - ./artifacts/checkpoints/segformer_best:/models/segformer_best:ro
+    restart: unless-stopped
