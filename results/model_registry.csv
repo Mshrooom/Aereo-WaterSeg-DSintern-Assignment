@@ -1,0 +1,5 @@
+experiment,model,training,checkpoint,inference
+A,facebook/sam-vit-base,none,facebook/sam-vit-base,oracle prompts
+B,facebook/sam-vit-base,SAM mask decoder,/kaggle/working/aereo-water-four-experiments-output/checkpoints/best.pt,human/oracle prompt comparison
+C,nvidia/segformer-b0-finetuned-ade-512-512,end-to-end semantic segmentation,/kaggle/working/aereo-water-four-experiments-output/checkpoints/segformer_best,automatic
+D,SegFormer + fine-tuned SAM,reuse B and C,/kaggle/working/aereo-water-four-experiments-output/checkpoints/segformer_best; /kaggle/working/aereo-water-four-experiments-output/checkpoints/best.pt,automatic generated prompts

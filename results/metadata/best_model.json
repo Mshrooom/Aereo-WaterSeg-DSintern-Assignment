@@ -1,0 +1,166 @@
+{
+  "epoch": 4,
+  "threshold": 0.5,
+  "val_metrics": {
+    "global_iou": 0.7775941094492611,
+    "global_dice": 0.8748837603767459,
+    "global_precision": 0.8670868949313832,
+    "global_recall": 0.8828221173062106,
+    "global_specificity": 0.9217172901898336,
+    "global_pixel_accuracy": 0.9074630388966797,
+    "global_balanced_accuracy": 0.9022697037480221,
+    "global_mcc": 0.8015555858318022,
+    "global_cohen_kappa": 0.8014739937463812,
+    "mean_iou": 0.6086332063388316,
+    "mean_dice": 0.7389968791823709,
+    "mean_precision": 0.76316095952792,
+    "mean_recall": 0.7482137225718313,
+    "mean_specificity": 0.8497653404539491,
+    "mean_pixel_accuracy": 0.842427224622329,
+    "mean_balanced_accuracy": 0.7989895315128902,
+    "mean_mcc": 0.5621361233275539,
+    "mean_cohen_kappa": 0.5496741814056619,
+    "mean_boundary_precision": 0.5778247762447227,
+    "mean_boundary_recall": 0.34126493098667093,
+    "mean_boundary_f1": 0.41401102899187303,
+    "mean_boundary_iou": 0.08786719866390585,
+    "mean_water_fraction": 0.38910508371458596,
+    "mean_predicted_water_fraction": 0.3905793271352944,
+    "mean_latency_ms": 237.3746452307671,
+    "ece": 0.018555522169603746,
+    "brier_score": 0.07224849074490497,
+    "auroc_hist": 0.9576832510097336,
+    "auprc_hist": 0.8575064902145371,
+    "images": 429,
+    "iou": 0.6086332063388316,
+    "dice": 0.7389968791823709,
+    "precision": 0.76316095952792,
+    "recall": 0.7482137225718313,
+    "specificity": 0.8497653404539491,
+    "pixel_accuracy": 0.842427224622329,
+    "balanced_accuracy": 0.7989895315128902,
+    "mcc": 0.5621361233275539,
+    "cohen_kappa": 0.5496741814056619
+  },
+  "prompt_mode": "box_points",
+  "config": {
+    "paths": {
+      "dataset_root": "/kaggle/input/satellite-images-of-water-bodies/Water Bodies Dataset",
+      "output_dir": "/kaggle/working/aereo-water-four-experiments-output",
+      "manifest_path": ""
+    },
+    "data": {
+      "images_dir_name": "Images",
+      "masks_dir_name": "Masks",
+      "extensions": [
+        ".jpg",
+        ".jpeg",
+        ".png",
+        ".tif",
+        ".tiff"
+      ],
+      "train_fraction": 0.7,
+      "val_fraction": 0.15,
+      "test_fraction": 0.15,
+      "stratification_bins": 10,
+      "num_workers": 0,
+      "verify_files": true,
+      "tile_size": 1024,
+      "tile_overlap": 128,
+      "materialize_tiles": false
+    },
+    "model": {
+      "model_id": "facebook/sam-vit-base",
+      "trainable_parts": "mask_decoder",
+      "unfreeze_last_vision_blocks": 0,
+      "multimask_output": false
+    },
+    "prompts": {
+      "train_modes": [
+        "point1",
+        "points",
+        "box",
+        "box_points"
+      ],
+      "train_weights": [
+        0.2,
+        0.25,
+        0.25,
+        0.3
+      ],
+      "eval_modes": [
+        "point1",
+        "points",
+        "box",
+        "box_points"
+      ],
+      "positive_points": 3,
+      "negative_points": 1,
+      "box_jitter_fraction": 0.08
+    },
+    "train": {
+      "seed": 42,
+      "epochs": 8,
+      "batch_size": 2,
+      "gradient_accumulation_steps": 4,
+      "learning_rate": 0.0001,
+      "encoder_learning_rate": 1e-06,
+      "weight_decay": 0.0001,
+      "warmup_fraction": 0.08,
+      "max_grad_norm": 1.0,
+      "amp": true,
+      "patience": 3,
+      "num_thresholds": 17,
+      "threshold_min": 0.1,
+      "threshold_max": 0.9,
+      "primary_prompt_mode": "box_points",
+      "monitor_metric": "iou",
+      "bce_weight": 0.35,
+      "dice_weight": 0.45,
+      "focal_weight": 0.2,
+      "iou_head_weight": 0.1,
+      "resume_checkpoint": null
+    },
+    "tracking": {
+      "provider": "local",
+      "project": "aereo-water-four-experiments",
+      "entity": "",
+      "run_name": "full-2841-four-experiments",
+      "wandb_mode": "offline",
+      "log_images": 8
+    },
+    "inference": {
+      "threshold": 0.5,
+      "use_tiling": true,
+      "tile_size": 1024,
+      "tile_overlap": 128,
+      "min_component_area": 0,
+      "fill_holes": false
+    },
+    "semantic": {
+      "model_id": "nvidia/segformer-b0-finetuned-ade-512-512",
+      "image_size": 512,
+      "epochs": 12,
+      "batch_size": 8,
+      "learning_rate": 6e-05,
+      "weight_decay": 0.0001,
+      "patience": 4,
+      "ce_weight": 0.6,
+      "dice_weight": 0.4
+    },
+    "auto_sam": {
+      "coarse_threshold": 0.5,
+      "max_positive_points": 3,
+      "negative_points": 1,
+      "min_component_area": 16,
+      "box_padding_fraction": 0.04,
+      "morphology_kernel": 3,
+      "sam_weight": 0.75
+    },
+    "export": {
+      "save_masks": true,
+      "save_probability_maps": true,
+      "resume": true
+    }
+  }
+}

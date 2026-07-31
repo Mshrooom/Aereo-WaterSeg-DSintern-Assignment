@@ -1,0 +1,7 @@
+{
+  "threshold": 0.35,
+  "coarse_threshold": 0.5,
+  "sam_weight": 0.75,
+  "sam_checkpoint": "/kaggle/working/aereo-water-four-experiments-output/checkpoints/best.pt",
+  "segformer_checkpoint": "/kaggle/working/aereo-water-four-experiments-output/checkpoints/segformer_best"
+}

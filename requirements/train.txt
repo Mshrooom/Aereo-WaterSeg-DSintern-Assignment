@@ -1,0 +1,9 @@
+torch>=2.6,<3
+transformers>=4.57,<5
+numpy>=1.26,<2.3
+pandas>=2.2,<3
+opencv-python-headless>=4.10,<5
+Pillow>=10,<12
+PyYAML>=6,<7
+tqdm>=4.66,<5
+wandb>=0.21,<1

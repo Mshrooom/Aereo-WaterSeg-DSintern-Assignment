@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Credentials
+.env
+.env.*
+secrets.*
+kaggle.json
+
+# Experiment tracking
+wandb/
+mlruns/
+
+# Generated outputs
+outputs/
+predictions/
+probabilities/
+smoke_test/
+
+# Model artifacts
+artifacts/
+models/
+checkpoints/
+*.pt
+*.pth
+*.bin
+*.safetensors
+
+# Archives
+*.zip
+*.tar
+*.tar.gz
+
+# IDE and operating system
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

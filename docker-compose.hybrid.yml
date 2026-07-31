@@ -1,0 +1,17 @@
+services:
+  water-segmentation:
+    build:
+      context: .
+      dockerfile: Dockerfile.hybrid
+    ports:
+      - "8000:8000"
+    environment:
+      SAM_CHECKPOINT: /models/sam/best.pt
+      SEGFORMER_CHECKPOINT: /models/segformer
+      HYBRID_THRESHOLD: "0.50"
+      COARSE_THRESHOLD: "0.50"
+      SAM_WEIGHT: "0.75"
+      DEVICE: auto
+    volumes:
+      - ./artifacts/checkpoints:/models:ro
+    restart: unless-stopped

@@ -1,0 +1,11 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      MODEL_CHECKPOINT: /models/best.pt
+      DEVICE: cpu
+      LOG_LEVEL: INFO
+    volumes:
+      - ./artifacts/checkpoints:/models:ro

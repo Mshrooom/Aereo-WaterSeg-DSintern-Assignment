@@ -1,0 +1,5 @@
+# Kaggle already provides torch, numpy, pandas, OpenCV, Pillow, matplotlib, and tqdm.
+# Do not use pip -U on the scientific stack inside a running Kaggle session.
+transformers>=4.57,<5
+pyyaml>=6,<7
+wandb>=0.21,<1

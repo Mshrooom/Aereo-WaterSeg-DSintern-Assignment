@@ -1,0 +1,5 @@
+{
+  "best_epoch": 4,
+  "best_score": 0.7775941094492611,
+  "checkpoint": "/kaggle/working/aereo-water-four-experiments-output/checkpoints/best.pt"
+}

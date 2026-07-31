@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=75", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aereo-water-sam"
+version = "0.1.0"
+description = "Production-oriented water-body segmentation with Segment Anything"
+requires-python = ">=3.10,<3.13"
+dependencies = [
+  "torch>=2.6,<3",
+  "transformers>=4.57,<5",
+  "numpy>=1.26,<2.3",
+  "pandas>=2.2,<3",
+  "opencv-python-headless>=4.10,<5",
+  "Pillow>=10,<12",
+  "PyYAML>=6,<7",
+  "tqdm>=4.66,<5",
+]
+
+[project.optional-dependencies]
+tracking = ["wandb>=0.21,<1"]
+geo = ["rasterio>=1.4,<2"]
+api = ["fastapi>=0.116,<1", "uvicorn[standard]>=0.35,<1", "python-multipart>=0.0.20,<1"]
+dev = ["pytest>=8,<9", "ruff>=0.12,<1", "httpx>=0.28,<1"]
+
+[project.scripts]
+waterseg-prepare = "waterseg.cli.prepare:main"
+waterseg-train = "waterseg.cli.train:main"
+waterseg-evaluate = "waterseg.cli.evaluate:main"
+waterseg-infer = "waterseg.cli.infer:main"
+waterseg-sweep = "waterseg.cli.sweep:main"
+waterseg-hybrid-infer = "waterseg.cli.hybrid_infer:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120

@@ -1,0 +1,28 @@
+program: scripts/wandb_sweep_train.py
+method: bayes
+metric:
+  name: val_threshold_iou
+  goal: maximize
+parameters:
+  learning_rate:
+    distribution: log_uniform_values
+    min: 0.00002
+    max: 0.0003
+  weight_decay:
+    values: [0.00001, 0.0001, 0.001]
+  bce_weight:
+    values: [0.25, 0.35, 0.45]
+  dice_weight:
+    values: [0.35, 0.45, 0.55]
+  focal_weight:
+    values: [0.10, 0.20, 0.30]
+  none_prompt_weight:
+    values: [0.25, 0.35, 0.50]
+  epochs:
+    value: 6
+command:
+  - ${env}
+  - ${interpreter}
+  - ${program}
+  - --config
+  - configs/sam_vit_b.yaml
