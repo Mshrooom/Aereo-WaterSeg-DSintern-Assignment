@@ -8,7 +8,10 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
-import torch
+try:
+    import torch
+except ModuleNotFoundError:
+    torch = None
 
 
 def seed_everything(seed: int, deterministic: bool = True) -> None:

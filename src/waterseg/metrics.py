@@ -8,7 +8,11 @@ import numpy as np
 import pandas as pd
 
 EPS = 1e-8
-TRAPEZOID = getattr(np, "trapezoid", np.trapz)
+TRAPEZOID = (
+    np.trapezoid
+    if hasattr(np, "trapezoid")
+    else np.trapz
+)
 
 
 def _safe_div(numerator: float, denominator: float, empty_value: float = 0.0) -> float:
