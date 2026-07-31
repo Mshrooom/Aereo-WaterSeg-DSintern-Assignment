@@ -1,4 +1,4 @@
-# Production Water-Body Segmentation in Satellite Imagery
+# Water-Body Segmentation in Satellite Imagery
 
 An end-to-end machine-learning system for segmenting water bodies in RGB
 satellite imagery. The project compares zero-shot SAM, task-specific SAM
@@ -645,7 +645,7 @@ Potential extensions include:
 
 # Author
 
-**Maanvi Bansal**
+**Maanvi Bansal :) **
 
 Data Science Intern Assignment — Water-Body Segmentation in Satellite Imagery
 
