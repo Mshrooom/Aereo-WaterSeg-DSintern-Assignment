@@ -645,7 +645,7 @@ Potential extensions include:
 
 # Author
 
-**Maanvi Bansal :) **
+ ## Maanvi Bansal :)
 
 Data Science Intern Assignment — Water-Body Segmentation in Satellite Imagery
 
