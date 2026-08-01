@@ -20,26 +20,25 @@ The repository also provides data and model registries, structured inference log
 
 1. [Project objective](#project-objective)
 2. [Executive results](#executive-results)
-3. [What is maintained](#what-is-maintained)
-4. [Final architecture](#final-architecture)
-5. [Dataset and split](#dataset-and-split)
-6. [Scientific and reproducibility guardrails](#scientific-and-reproducibility-guardrails)
-7. [Repository navigation](#repository-navigation)
-8. [Quick start: use the released model](#quick-start-use-the-released-model)
-9. [Environment setup](#environment-setup)
-10. [Recreate the experiment](#recreate-the-experiment)
-11. [Smoke profile](#smoke-profile)
-12. [Full profile](#full-profile)
-13. [Resume an interrupted run](#resume-an-interrupted-run)
-14. [Run direct Python inference](#run-direct-python-inference)
-15. [Run the FastAPI service](#run-the-fastapi-service)
-16. [Call the API with an image](#call-the-api-with-an-image)
-17. [Build and run Docker](#build-and-run-docker)
-18. [Results and comparison](#results-and-comparison)
-19. [Latency and resource results](#latency-and-resource-results)
-20. [Experiment tracking and registries](#experiment-tracking-and-registries)
-21. [Tests and continuous integration](#tests-and-continuous-integration)
-22. [Release assets and integrity](#release-assets-and-integrity)
+3. [Architecture](#Architecture)
+4. [Dataset and split](#dataset-and-split)
+5. [Scientific and reproducibility guardrails](#scientific-and-reproducibility-guardrails)
+6. [Repository navigation](#repository-navigation)
+7. [Quick start: use the released model](#quick-start-use-the-released-model)
+8. [Environment setup](#environment-setup)
+9. [Recreate the experiment](#recreate-the-experiment)
+10. [Smoke profile](#smoke-profile)
+11. [Full profile](#full-profile)
+12. [Resume an interrupted run](#resume-an-interrupted-run)
+13. [Run direct Python inference](#run-direct-python-inference)
+14. [Run the FastAPI service](#run-the-fastapi-service)
+15. [Call the API with an image](#call-the-api-with-an-image)
+16. [Build and run Docker](#build-and-run-docker)
+17. [Results and comparison](#results-and-comparison)
+18. [Latency and resource results](#latency-and-resource-results)
+19. [Experiment tracking and registries](#experiment-tracking-and-registries)
+20. [Tests and continuous integration](#tests-and-continuous-integration)
+21. [Release assets and integrity](#release-assets-and-integrity)
 23. [Known limitations](#known-limitations)
 24. [Recommended next improvements](#recommended-next-improvements)
 
@@ -135,46 +134,10 @@ Measured on a Kaggle Tesla T4 GPU with batch size 1 and a 512 × 512 model input
 
 Latency depends on hardware, drivers, dependency versions, storage, image dimensions, and service concurrency. The historical `8.3 ms` SegFormer result is a different model-stage timing measurement and should not be directly compared with V3 end-to-end API latency.
 
----
-
-# What is maintained
-
-The repository contains two related generations of work.
-
-## Historical research evidence
-
-The original experiments remain available for comparison:
-
-- Experiment A: zero-shot SAM with controlled oracle prompts;
-- Experiment B: water-specific fine-tuned SAM;
-- Experiment C: original automatic SegFormer;
-- Experiment D: automatic SegFormer-to-SAM refinement.
-
-These experiments explain the production decision, but they are not the recommended deployment path.
-
-## Maintained V3 path
-
-Use `src/aereo_water/` and the V3 notebooks for:
-
-- validated ingestion and portable manifests;
-- leakage audits;
-- preprocessing and augmentation;
-- raster and GeoTIFF tiling;
-- Optuna HPO;
-- same-code baseline confirmation;
-- seed stability;
-- resumable final training;
-- threshold calibration;
-- evaluation and statistics;
-- production inference;
-- FastAPI;
-- Docker;
-- model/data registries;
-- CI and evidence export.
 
 ---
 
-# Final architecture
+# Architecture
 
 ## Inference architecture
 
