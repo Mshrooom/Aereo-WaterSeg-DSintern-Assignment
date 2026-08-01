@@ -1,0 +1,16 @@
+{
+  "ci_lower": 0.002959603640872424,
+  "ci_upper": 0.014244785185169492,
+  "confidence": 0.95,
+  "degraded_fraction": 0.3491686460807601,
+  "improved_fraction": 0.6128266033254157,
+  "mean_difference": 0.008630587587071066,
+  "median_difference": 0.0039528293773095635,
+  "negative_rank_sum": 26755.0,
+  "paired_count": 421,
+  "positive_rank_sum": 55460.0,
+  "rank_biserial_effect": 0.34914553305357904,
+  "unchanged_fraction": 0.03800475059382423,
+  "wilcoxon_p_value": 1.1375502409978403e-09,
+  "wilcoxon_statistic": 26755.0
+}

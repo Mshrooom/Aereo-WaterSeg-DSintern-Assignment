@@ -1,0 +1,30 @@
+{
+  "overall": {
+    "brier_score": 0.06611138148944043,
+    "expected_calibration_error": 0.03760767083516966,
+    "low_confidence_fraction": 0.030945551776140945,
+    "mean_predictive_entropy": 0.12191087651718438,
+    "sampled_pixels": 5678716
+  },
+  "test": {
+    "brier_score": 0.07830014318481111,
+    "expected_calibration_error": 0.04943793892960566,
+    "low_confidence_fraction": 0.03263895486935867,
+    "mean_predictive_entropy": 0.12744353541420814,
+    "sampled_pixels": 842000
+  },
+  "train": {
+    "brier_score": 0.061587658438768865,
+    "expected_calibration_error": 0.033277496919065716,
+    "low_confidence_fraction": 0.03039648972180975,
+    "mean_predictive_entropy": 0.1198597508891713,
+    "sampled_pixels": 3978716
+  },
+  "validation": {
+    "brier_score": 0.07512731614418777,
+    "expected_calibration_error": 0.04626971162216853,
+    "low_confidence_fraction": 0.03182983682983683,
+    "mean_predictive_entropy": 0.1259928666837235,
+    "sampled_pixels": 858000
+  }
+}

@@ -1,0 +1,6 @@
+criterion,threshold,observed,passed,final_evidence_required
+Quality: no material IoU regression,0.714,0.7276253229163739,True,False
+Robustness: empty-mask false-positive rate,0.05,,False,False
+Operational: p95 end-to-end latency,1000,39.53178770016166,True,False
+Integrity: checkpoint hash,exact match,True,True,False
+API smoke test,all expected statuses,"{'health_status': 200, 'ready_status': 200, 'metadata_status': 200, 'valid_upload_status': 200, 'valid_content_type': 'image/png', 'invalid_content_type_status': 415, 'missing_file_status': 422, 'oversized_upload_status': 413}",True,False

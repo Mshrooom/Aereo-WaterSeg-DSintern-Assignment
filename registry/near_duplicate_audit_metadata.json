@@ -1,0 +1,7 @@
+{
+  "audit_complete": true,
+  "comparisons_evaluated": 1872959,
+  "expected_cross_split_pairs": 1872959,
+  "hamming_threshold": 4,
+  "suspected_cross_split_pairs": 259
+}

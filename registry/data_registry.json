@@ -1,0 +1,17 @@
+{
+  "created_at_utc": "2026-08-01T14:49:17.148458+00:00",
+  "dataset_name": "Satellite Images of Water Bodies",
+  "dataset_source": "Kaggle",
+  "duplicate_policy": "exact SHA-256 rejection plus perceptual-hash audit; historical split retained for comparison",
+  "git_commit": "c2e20725c86f49d1ba74d15c9b21bf2cba3812b3",
+  "pairing_key": "case-insensitive filename stem",
+  "schema_version": 2,
+  "split_before_tiling": true,
+  "split_origin": "recovered from historical Experiment C registry",
+  "split_registry_sha256": "d7f0988bfd5e36c39fb5e1cffef323d2637a2b94daaa466f9a85e130432aa9d5",
+  "split_seed": 42,
+  "test_pairs": 421,
+  "total_pairs": 2841,
+  "train_pairs": 1991,
+  "validation_pairs": 429
+}

@@ -1,0 +1,8 @@
+{
+  "augmentation_profile": "light",
+  "ce_weight": 0.4,
+  "dice_weight": 0.6,
+  "learning_rate": 9.625001540448903e-05,
+  "warmup_ratio": 0.0,
+  "weight_decay": 0.007499977081905773
+}

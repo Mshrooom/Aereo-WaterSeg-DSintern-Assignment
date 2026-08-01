@@ -1,0 +1,13 @@
+{
+  "cold_start_ms": 143.89411199954338,
+  "mean_end_to_end_ms": 33.34309571975609,
+  "mean_model_forward_ms": 13.527693347930908,
+  "p50_end_to_end_ms": 31.90999649996229,
+  "p50_model_forward_ms": 12.04859209060669,
+  "p95_end_to_end_ms": 39.53178770016166,
+  "p95_model_forward_ms": 20.807711601257324,
+  "peak_inference_memory_mb": 283.6201171875,
+  "throughput_images_per_second": 73.92243261878436,
+  "timed_runs": 50,
+  "warmup_runs": 5
+}

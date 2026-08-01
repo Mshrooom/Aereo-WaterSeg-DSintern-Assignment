@@ -1,0 +1,10 @@
+{
+  "health_status": 200,
+  "invalid_content_type_status": 415,
+  "metadata_status": 200,
+  "missing_file_status": 422,
+  "oversized_upload_status": 413,
+  "ready_status": 200,
+  "valid_content_type": "image/png",
+  "valid_upload_status": 200
+}

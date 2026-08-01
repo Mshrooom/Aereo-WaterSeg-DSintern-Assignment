@@ -1,0 +1,7 @@
+{
+  "checkpoint_sha256": "dc0af932cfbcb2f3ea9cfa0e18e0f8438636027de2579d534412f7472b4521a4",
+  "image_size": 512,
+  "model_version": "segformer-v3.0.0",
+  "resize_policy": "letterbox",
+  "validation_threshold": 0.45
+}

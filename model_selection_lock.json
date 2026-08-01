@@ -1,0 +1,41 @@
+{
+  "acceptance_criteria": {
+    "deployment": {
+      "require_health_endpoint": true,
+      "require_invalid_image_controlled_error": true,
+      "require_readiness_endpoint": true,
+      "require_restart_test": true,
+      "require_valid_image_response": true
+    },
+    "integrity": {
+      "require_checkpoint_hash_match": true
+    },
+    "operational": {
+      "maximum_p95_end_to_end_latency_ms": 1000
+    },
+    "quality": {
+      "historical_segformer_test_iou": 0.719,
+      "maximum_allowed_mean_iou_regression": 0.005
+    },
+    "robustness": {
+      "maximum_empty_mask_false_positive_rate": 0.05
+    }
+  },
+  "best_epoch": 14,
+  "checkpoint_sha256": "dc0af932cfbcb2f3ea9cfa0e18e0f8438636027de2579d534412f7472b4521a4",
+  "final_seed": 42,
+  "git_commit": "c2e20725c86f49d1ba74d15c9b21bf2cba3812b3",
+  "selected_parameters": {
+    "augmentation_profile": "light",
+    "ce_weight": 0.4,
+    "dice_weight": 0.6,
+    "learning_rate": 9.625001540448903e-05,
+    "warmup_ratio": 0.0,
+    "weight_decay": 0.007499977081905773
+  },
+  "selection_metric": "mean per-image original-resolution validation IoU",
+  "split_registry_sha256": "d7f0988bfd5e36c39fb5e1cffef323d2637a2b94daaa466f9a85e130432aa9d5",
+  "test_split_used_for_selection": false,
+  "timestamp_utc": "2026-08-01T17:58:52.841088+00:00",
+  "validation_threshold": 0.45
+}

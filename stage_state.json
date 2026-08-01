@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "stages": {
+    "api_test": {
+      "completed_at_utc": "2026-08-01T18:16:25.185363+00:00",
+      "evidence": [
+        "/kaggle/working/aereo-water-v3-full/api_validation/api_smoke_test.json",
+        "/kaggle/working/aereo-water-v3-full/api_validation/valid_response.png"
+      ],
+      "message": null,
+      "started_at_utc": "2026-08-01T18:16:24.900208+00:00",
+      "status": "complete"
+    },
+    "calibrate": {
+      "completed_at_utc": "2026-08-01T17:58:52.309352+00:00",
+      "evidence": [
+        "/kaggle/working/aereo-water-v3-full/calibration/validation_threshold_sweep.csv",
+        "/kaggle/working/aereo-water-v3-full/calibration/selected_threshold.json"
+      ],
+      "message": null,
+      "started_at_utc": "2026-08-01T17:58:06.563061+00:00",
+      "status": "complete"
+    },
+    "confirmation": {
+      "completed_at_utc": "2026-08-01T16:58:43.653970+00:00",
+      "evidence": [
+        "/kaggle/working/aereo-water-v3-full/confirmation/confirmation_results.csv"
+      ],
+      "message": null,
+      "started_at_utc": "2026-08-01T16:07:42.451837+00:00",
+      "status": "complete"
+    },
+    "data": {
+      "completed_at_utc": "2026-08-01T14:51:22.958148+00:00",
+      "evidence": [
+        "/kaggle/working/aereo-water-v3-full/registry/runtime_manifest.csv",
+        "/kaggle/working/aereo-water-v3-full/registry/split_registry.csv",
+        "/kaggle/working/aereo-water-v3-full/registry/data_registry.json",
+        "/kaggle/working/aereo-water-v3-full/registry/near_duplicate_audit_metadata.json",
+        "/kaggle/working/aereo-water-v3-full/tiling/tiling_manifest.csv",
+        "/kaggle/working/aereo-water-v3-full/tiling/geotiff_tiling_manifest.csv"
+      ],
+      "message": null,
+      "started_at_utc": "2026-08-01T14:46:20.813864+00:00",
+      "status": "complete"
+    },
+    "evaluate": {
+      "completed_at_utc": "2026-08-01T18:09:00.952814+00:00",
+      "evidence": [
+        "/kaggle/working/aereo-water-v3-full/evaluation/segformer_v3_all_2841.csv",
+        "/kaggle/working/aereo-water-v3-full/evaluation/probability_calibration_metrics.json"
+      ],
+      "message": null,
+      "started_at_utc": "2026-08-01T17:58:52.910524+00:00",
+      "status": "complete"
+    },
+    "export": {
+      "completed_at_utc": null,
+      "evidence": [],
+      "message": null,
+      "started_at_utc": "2026-08-01T18:17:23.718961+00:00",
+      "status": "running"
+    },
+    "final_train": {
+      "completed_at_utc": "2026-08-01T17:50:48.431157+00:00",
+      "evidence": [
+        "/kaggle/working/aereo-water-v3-full/final_training/best_checkpoint",
+        "/kaggle/working/aereo-water-v3-full/final_training/last_state.pt",
+        "/kaggle/working/aereo-water-v3-full/final_training/history.csv"
+      ],
+      "message": null,
+      "started_at_utc": "2026-08-01T17:22:05.794934+00:00",
+      "status": "complete"
+    },
+    "hpo": {
+      "completed_at_utc": "2026-08-01T16:07:42.007263+00:00",
+      "evidence": [
+        "/kaggle/working/aereo-water-v3-full/hpo/optuna.db",
+        "/kaggle/working/aereo-water-v3-full/hpo/trials.csv",
+        "/kaggle/working/aereo-water-v3-full/hpo/best_trial.json"
+      ],
+      "message": null,
+      "started_at_utc": "2026-08-01T15:03:15.894814+00:00",
+      "status": "complete"
+    },
+    "inference": {
+      "completed_at_utc": "2026-08-01T18:09:35.603078+00:00",
+      "evidence": [
+        "/kaggle/working/aereo-water-v3-full/production_inference/predicted_water_mask.png",
+        "/kaggle/working/aereo-water-v3-full/production_inference/predicted_water_overlay.png",
+        "/kaggle/working/aereo-water-v3-full/production_inference/inference.jsonl"
+      ],
+      "message": null,
+      "started_at_utc": "2026-08-01T18:09:35.344085+00:00",
+      "status": "complete"
+    },
+    "stability": {
+      "completed_at_utc": "2026-08-01T17:22:05.777060+00:00",
+      "evidence": [
+        "/kaggle/working/aereo-water-v3-full/stability/seed_stability.csv"
+      ],
+      "message": null,
+      "started_at_utc": "2026-08-01T16:58:43.720433+00:00",
+      "status": "complete"
+    }
+  },
+  "updated_at_utc": "2026-08-01T18:17:23.718974+00:00"
+}

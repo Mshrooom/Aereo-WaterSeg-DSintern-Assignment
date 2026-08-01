@@ -1,0 +1,7 @@
+{
+  "empty_mask_policy": "perfect_if_both_empty",
+  "selection_metric": "mean per-image original-resolution validation IoU",
+  "test_split_used": false,
+  "validation_images": 429,
+  "validation_threshold": 0.45
+}
