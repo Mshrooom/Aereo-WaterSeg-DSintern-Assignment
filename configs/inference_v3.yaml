@@ -1,0 +1,9 @@
+model_version: segformer-v3.0.0
+image_size: 512
+resize_policy: letterbox
+threshold_source: selected_model.json
+warmup_runs: 5
+timed_runs: 50
+maximum_upload_bytes: 20971520
+maximum_image_pixels: 100000000
+maximum_concurrency: 1

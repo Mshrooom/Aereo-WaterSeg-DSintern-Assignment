@@ -1,0 +1,63 @@
+data:
+  image_size: 512
+  resize_policy: letterbox
+  num_workers: 2
+  train_count: 1991
+  validation_count: 429
+  test_count: 421
+  split_seed: 42
+  tile_size: 1024
+  tile_overlap: 128
+  near_duplicate_hamming_threshold: 4
+
+model:
+  model_id: nvidia/segformer-b0-finetuned-ade-512-512
+  num_labels: 2
+
+training:
+  seed: 42
+  epochs: 15
+  batch_size: 4
+  gradient_accumulation_steps: 1
+  learning_rate: 0.00006
+  weight_decay: 0.0001
+  ce_weight: 0.6
+  dice_weight: 0.4
+  warmup_ratio: 0.1
+  gradient_clip_norm: 1.0
+  mixed_precision: true
+  early_stopping_patience: 4
+  fixed_validation_threshold: 0.5
+  augmentation_profile: moderate
+  save_every_epoch: true
+  deterministic: true
+
+hpo:
+  completed_trials: 12
+  maximum_attempts: 20
+  epochs_per_trial: 4
+  train_subset_size: 1000
+  validation_subset_size: null
+  confirmation_top_k: 3
+  confirmation_epochs: 6
+  stability_seeds: [42, 2026, 3407]
+  study_name: water_segformer_hpo
+
+evaluation:
+  batch_size: 4
+  include_boundary_metrics: true
+  boundary_tolerance_pixels: 2
+  threshold_minimum: 0.10
+  threshold_maximum: 0.90
+  threshold_step: 0.05
+  empty_mask_policy: perfect_if_both_empty
+  calibration_bins: 15
+  bootstrap_iterations: 5000
+
+tracking:
+  mlflow_experiment_hpo: water_segformer_hpo
+  mlflow_experiment_confirmation: water_segformer_confirmation
+  mlflow_experiment_final: water_segformer_final
+  mlflow_experiment_evaluation: water_segformer_evaluation
+  wandb_project: aereo-water-segmentation
+  wandb_mode: offline

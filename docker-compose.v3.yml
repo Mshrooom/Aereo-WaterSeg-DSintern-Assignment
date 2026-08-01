@@ -1,0 +1,22 @@
+services:
+  water-segmentation-v3:
+    build:
+      context: .
+      dockerfile: Dockerfile.v3
+    image: aereo-water-segmentation:v3
+    ports:
+      - "8000:8000"
+    environment:
+      AEREO_CHECKPOINT: /app/artifacts/checkpoints/segformer_best
+      AEREO_SELECTED_MODEL: /app/artifacts/checkpoints/selected_model.json
+      AEREO_LOG_PATH: /app/artifacts/logs/inference.jsonl
+      AEREO_DEVICE: cpu
+      AEREO_IMAGE_SIZE: "512"
+      AEREO_RESIZE_POLICY: letterbox
+      AEREO_MAX_UPLOAD_BYTES: "20971520"
+      AEREO_MAX_IMAGE_PIXELS: "100000000"
+      AEREO_MAX_CONCURRENCY: "1"
+    volumes:
+      - ./artifacts/checkpoints:/app/artifacts/checkpoints:ro
+      - ./artifacts/logs:/app/artifacts/logs
+    restart: unless-stopped

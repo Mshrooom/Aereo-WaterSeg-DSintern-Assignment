@@ -1,0 +1,27 @@
+{
+  "full_notebook_default_profile": "full",
+  "generated_at_utc": "2026-08-01T11:53:40.322582+00:00",
+  "lightweight_unit_tests": {
+    "failed": 0,
+    "passed": 33,
+    "scope": "manifest, leakage, near duplicates, transforms, ignored padding, tiling, GeoTIFF parity, metrics, calibration, statistics, optimizer groups, HPO config, registries, stage state, API, compliance"
+  },
+  "not_executed_here": [
+    "Hugging Face model download",
+    "GPU HPO",
+    "same-code confirmation training",
+    "seed-stability training",
+    "final full training",
+    "2,841-image inference",
+    "MLflow/W&B runtime tracking",
+    "Docker image build and runtime validation"
+  ],
+  "notebook_ast_parse_errors": 0,
+  "notebook_cells": 104,
+  "notebook_code_cells": 62,
+  "notebook_markdown_cells": 42,
+  "notebook_nbformat_validation": "passed",
+  "package_version": "3.0.0",
+  "python_source_compilation": "passed",
+  "source_notebook_default_profile": "smoke"
+}

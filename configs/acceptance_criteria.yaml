@@ -1,0 +1,15 @@
+quality:
+  historical_segformer_test_iou: 0.7190
+  maximum_allowed_mean_iou_regression: 0.005
+robustness:
+  maximum_empty_mask_false_positive_rate: 0.05
+operational:
+  maximum_p95_end_to_end_latency_ms: 1000
+integrity:
+  require_checkpoint_hash_match: true
+deployment:
+  require_health_endpoint: true
+  require_readiness_endpoint: true
+  require_valid_image_response: true
+  require_invalid_image_controlled_error: true
+  require_restart_test: true
