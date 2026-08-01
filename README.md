@@ -1,15 +1,18 @@
-# Aereo Water-Body Segmentation — Production SegFormer V3
+# Aereo Water-Body Segmentation — Data Science Intern Assignment
 
 [![SegFormer V3 CI](https://github.com/Mshrooom/Aereo-WaterSeg-DSintern-Assignment/actions/workflows/segformer-v3-ci.yml/badge.svg)](https://github.com/Mshrooom/Aereo-WaterSeg-DSintern-Assignment/actions/workflows/segformer-v3-ci.yml)
 [![Release](https://img.shields.io/badge/release-v3.0.0-blue)](https://github.com/Mshrooom/Aereo-WaterSeg-DSintern-Assignment/releases/tag/v3.0.0)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-SegFormer-orange)](https://pytorch.org/)
 
-A production-oriented, reproducible machine-learning system for segmenting water bodies in RGB satellite imagery.
+A complete, production-oriented machine-learning system for automatic water-body segmentation from RGB satellite imagery.
 
-The repository preserves the original four-model study—zero-shot SAM, fine-tuned SAM, SegFormer, and a SegFormer-to-SAM hybrid—but **Production SegFormer V3 is the maintained training, evaluation, inference, API, and deployment path**.
+The project combines rigorous model development with reproducible data engineering, evaluation, experiment tracking, and deployment. It compares zero-shot SAM, fine-tuned SAM, SegFormer, and a SegFormer-to-SAM hybrid, while selecting SegFormer-B0 as the final production model because it achieved the strongest balance of segmentation accuracy, boundary quality, latency, and operational simplicity.
 
-V3 adds leakage-controlled model selection, Optuna hyperparameter optimization, same-code baseline confirmation, three-seed stability analysis, resumable training, validation-only threshold calibration, frozen held-out test evaluation, statistical comparison, model/data registries, structured inference logging, FastAPI serving, Docker configuration, CI, and versioned evidence exports.
+The pipeline includes leakage-aware data splitting, Optuna-based hyperparameter optimization, same-code baseline confirmation, multi-seed stability analysis, resumable training, validation-only threshold calibration, frozen held-out test evaluation, paired statistical testing, and complete per-image result registries. **MLflow is used as the primary experiment-tracking and model-governance layer**, recording hyperparameters, metrics, checkpoints, artifacts, and model-selection evidence across HPO, confirmation, stability, training, and evaluation stages.
+
+The repository also provides data and model registries, structured inference logging, FastAPI serving, Docker packaging, continuous integration, checksum-verified release artifacts, and reproducibility documentation. The result is not only a trained segmentation model, but a traceable end-to-end system that can be independently reviewed, reproduced, tested, and deployed.
+
 
 ---
 
@@ -460,7 +463,8 @@ Set-ExecutionPolicy -Scope Process Bypass
 
 ```powershell
 python -m pip install --upgrade pip setuptools wheel
-python -m pip install -r .equirements\production.in
+python -m pip install -r .
+equirements\production.in
 python -m pip install --no-deps --editable .
 ```
 
@@ -528,13 +532,15 @@ The repository CI uses Python 3.11 and a CPU PyTorch installation.
 ## Production dependencies
 
 ```powershell
-python -m pip install -r .equirements\production.in
+python -m pip install -r .
+equirements\production.in
 ```
 
 ## CI/test dependencies
 
 ```powershell
-python -m pip install -r .equirements\ci.in
+python -m pip install -r .
+equirements\ci.in
 ```
 
 ## Editable package installation
@@ -798,7 +804,8 @@ print("Metadata:", metadata)
 Run:
 
 ```powershell
-python .un_v3_inference.py
+python .
+un_v3_inference.py
 ```
 
 Expected outputs:
@@ -831,7 +838,8 @@ $env:AEREO_CHECKPOINT = (
 ).Path
 
 $env:AEREO_SELECTED_MODEL = (
-  Resolve-Path ".egistry\selected_model.json"
+  Resolve-Path ".
+egistry\selected_model.json"
 ).Path
 
 $env:AEREO_DEVICE = "cpu"
@@ -1272,15 +1280,11 @@ The deployment artifact was also reloaded in a clean directory during notebook e
 2. **Geographic generalization is not established.** Region and time metadata are incomplete.
 3. **No empty-mask examples in the held-out test set.** All 421 test masks contain water, so empty-scene false-positive rate is `NOT_APPLICABLE`, not zero.
 4. **Reference-label quality.** Some masks may reflect automated or index-assisted processing.
-5. **Perceptual similarity is only an audit.** Exact duplicates are rejected, but perceptual hashes do not prove geographic independence.
-6. **Boundary distances are mainly in pixels.**
-7. **Historical SAM runs use older implementations and controlled prompt protocols.**
-8. **Historical and V3 latency scopes differ.**
-9. **The threshold 0.45 is dataset-specific and should be recalibrated after domain shift.**
-10. **Docker validation is external to the Kaggle notebook.**
-11. **The API does not yet include production authentication, rate limiting or distributed serving.**
-12. **No ONNX, TensorRT or quantized export is included yet.**
-13. **Latency will vary by hardware and concurrency.**
+5. **Historical and V3 latency scopes differ.**
+6. **Docker validation is external to the Kaggle notebook.**
+7. **The API does not yet include production authentication, rate limiting or distributed serving.**
+8. **No ONNX, TensorRT or quantized export is included yet.**
+9. **Latency will vary by hardware and concurrency.**
 
 ---
 
@@ -1289,14 +1293,9 @@ The deployment artifact was also reloaded in a clean directory during notebook e
 - add NIR and SWIR bands;
 - evaluate geographic and temporal OOD splits;
 - add manually verified dry-land negative controls;
-- add boundary-aware losses;
-- compare SegFormer-B1/B2 under matched compute;
 - export ONNX and benchmark ONNX Runtime;
-- evaluate FP16, INT8 and TensorRT;
-- add authentication, rate limiting, metrics and tracing;
 - add cloud, haze and seasonal corruption tests;
 - use metre-based boundary metrics when georeferencing is valid;
-- run sustained Docker load and concurrency tests.
 
 ---
 
