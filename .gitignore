@@ -62,3 +62,9 @@ results/hpo/mlruns/
 results/hpo/trials/
 # Python environments and caches
 # Notebook runtime files
+
+# Keep maintained V3 Python source packages.
+!src/aereo_water/data/
+!src/aereo_water/data/**
+!src/aereo_water/models/
+!src/aereo_water/models/**
