@@ -1,36 +1,83 @@
-# Experimental Results
+# Results Guide
 
-All four experiments were evaluated on the same deterministic split of the
-2,841-image Satellite Images of Water Bodies dataset.
+This directory separates high-level comparison tables from detailed audit artifacts.
 
-- Training images: 1,991
-- Validation images: 429
-- Test images: 421
-- Total images: 2,841
+## Start here
 
-## Test Performance
+Use:
 
-| Experiment | Configuration | Mean IoU | Dice | Boundary F1 | Mean latency |
-|---|---|---:|---:|---:|---:|
-| A: Zero-shot SAM | Best oracle prompt | 0.5667 | 0.6890 | 0.3544 | 235.1 ms |
-| B: Fine-tuned SAM | Box + points | 0.6043 | 0.7348 | 0.4021 | 237.1 ms |
-| C: SegFormer | Fully automatic | **0.7190** | **0.8191** | **0.5985** | **8.3 ms** |
-| D: SegFormer + SAM | Automatic hybrid | 0.6093 | 0.7352 | 0.4131 | >242.8 ms |
+```text
+summary/summary_test_only.csv
+```
 
-SegFormer achieved the highest automatic segmentation accuracy, strongest
-boundary quality, and lowest inference latency. It was selected as the
-production model.
+for the primary held-out test comparison.
 
-The SAM experiments remain useful for measuring zero-shot transfer, prompt
-sensitivity, and the effect of task-specific fine-tuning.
+## Directory map
 
-## Metric Notes
+### `summary/`
 
-- Primary metric: macro mean IoU across test images.
-- A and B use oracle prompts derived from ground-truth masks for controlled
-  prompt comparison.
-- C is fully automatic and requires no prompt.
-- D generates prompts automatically from SegFormer predictions.
-- The recorded hybrid latency excludes part of the precomputed coarse-model
-  stage, so real end-to-end hybrid latency is higher.
-- Boundary distances are measured in pixels.
+Small tables intended for direct review:
+
+- `summary_test_only.csv`: principal test-set comparison
+- `summary_macro_by_split.csv`: macro metrics by experiment, prompt mode, and split
+- `summary_global_by_split.csv`: pooled confusion-matrix metrics by split
+- `experiment_A_test_prompt_summary.csv`: zero-shot SAM prompt comparison
+
+### `training/`
+
+Epoch-level histories:
+
+- `segformer_training_history.csv`
+- `sam_training_history.csv`
+
+Losses should be compared within a model family, not directly across different training objectives.
+
+### `calibration/`
+
+Validation-only output calibration:
+
+- `experiment_D_threshold_sweep.csv`
+- `threshold_sweeps/`: epoch-specific threshold tables
+
+### `registry/`
+
+Model and artifact metadata:
+
+- `model_registry.csv`
+
+### `full/`
+
+Complete per-image registries:
+
+- `experiment_A_zero_shot_sam_all_2841.csv`
+- `experiment_B_finetuned_sam_all_2841.csv`
+- `experiment_C_segformer_all_2841.csv`
+- `experiment_D_auto_sam_all_2841.csv`
+
+These files support auditing, error analysis, and reconstruction of the deterministic split. They are not the first files a reviewer needs to open.
+
+### `hpo/`
+
+Measured Optuna and MLflow pilot-study outputs will be placed here:
+
+- `trials.csv`
+- `best_trial.json`
+- `mlflow_runs.csv`
+- optimization figures
+- study metadata
+
+### `figures/`
+
+Report-ready plots.
+
+### `sample_predictions/`
+
+A small curated set of input, ground-truth, and prediction examples.
+
+## Interpretation caveats
+
+- Experiments A and B use oracle prompts derived from masks.
+- Experiment D is an automatic hybrid ablation, not the production model.
+- Hybrid latency excludes part of the separately materialized coarse stage.
+- Thresholds were selected on validation data.
+- The held-out test split is reserved for final comparison.

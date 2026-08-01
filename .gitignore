@@ -51,3 +51,14 @@ checkpoints/
 *.pth
 *.bin
 *.safetensors
+# Local datasets and generated model artifacts
+data/
+# Model weights
+*.ckpt
+pytorch_model.bin
+# Local HPO and experiment-tracking stores
+*.db
+results/hpo/mlruns/
+results/hpo/trials/
+# Python environments and caches
+# Notebook runtime files
