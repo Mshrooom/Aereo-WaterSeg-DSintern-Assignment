@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+
   pull_request:
     branches:
       - main
@@ -24,7 +25,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: "pip"
+          cache: pip
           cache-dependency-path: |
             requirements/production.in
             requirements/ci.in
@@ -52,12 +53,16 @@ jobs:
       - name: Verify critical imports
         run: |
           python -c "import torch; print('torch:', torch.__version__)"
-          python -c "import PIL; print('Pillow import passed')"
+          python -c "import PIL; print('Pillow:', PIL.__version__)"
           python -c "import rasterio; print('rasterio:', rasterio.__version__)"
           python -c "import fastapi; print('fastapi:', fastapi.__version__)"
           python -c "import transformers; print('transformers:', transformers.__version__)"
-          python -c "import optuna; print('optuna:', optuna.__version__)"
+          python -c "import pandas; print('pandas:', pandas.__version__)"
           python -c "import aereo_water; print('aereo_water:', aereo_water.__file__)"
+
+      - name: Check dependency compatibility
+        run: |
+          python -m pip check
 
       - name: Compile source
         run: |
