@@ -716,6 +716,15 @@ docker compose `
 
 This checks YAML resolution and paths. It does not build or start the service.
 
+If not working restart the powershell and then:
+
+```poweshell
+docker desktop start
+```
+```powershell
+docker context ls
+```
+
 ## 3. Recreate the image from scratch
 
 Remove an old Compose service if it exists:
