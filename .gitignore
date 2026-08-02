@@ -70,11 +70,20 @@ results/hpo/trials/
 !src/aereo_water/models/**
 
 # Generated models and experiment outputs
-artifacts/checkpoints/
+artifacts/checkpoints/*
+
+# Keep the production deployment checkpoint
+!artifacts/checkpoints/segformer_best/
+!artifacts/checkpoints/segformer_best/config.json
+!artifacts/checkpoints/segformer_best/metadata.pt
+!artifacts/checkpoints/segformer_best/model.safetensors
+!artifacts/checkpoints/segformer_best/preprocessor_config.json
+
 artifacts/predictions/
 artifacts/overlays/
 artifacts/logs/
 artifacts/mlruns/
 artifacts/wandb/
+
 *.onnx
 *.engine
