@@ -361,9 +361,12 @@ Obtain checkpoints through the GitHub release or recreate them through the full 
 
 | Goal | Path |
 |---|---|
-| Review the complete executed workflow | `notebooks/Aereo_Production_SegFormer_V3_EXECUTED.ipynb` |
-| Run a smoke validation | `notebooks/Aereo_Production_SegFormer_V3_Source.ipynb` |
-| Recreate the full governed experiment | `notebooks/Aereo_Production_SegFormer_V3_Full_Run.ipynb` |
+| Review the original comparative assignment | `notebooks/aereo-task-original.ipynb` |
+| Review the complete A–D experiment run | `notebooks/aereo-task-maanvi-bansal (1).ipynb` |
+| Inspect SAM zero-shot and fine-tuning | `notebooks/aereo_sam_production_pipeline.ipynb` |
+| Run a governed V3 smoke validation | `notebooks/01_complete_segformer_production_pipeline_source.ipynb` |
+| Recreate governed Experiment E | `notebooks/01_complete_segformer_production_pipeline_full_run.ipynb` |
+| Review executed governed V3 evidence | `notebooks/Aereo_Production_SegFormer_V3_EXECUTED.ipynb` |
 | Inspect final metrics | `evidence/evaluation/segformer_v3_test_metrics.json` |
 | Inspect all V3 per-image rows | `evidence/evaluation/segformer_v3_all_2841.csv` |
 | Inspect historical experiments | `evidence/results/full/` |
