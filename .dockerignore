@@ -1,7 +1,15 @@
 .git
-__pycache__
+__pycache__/
 *.pyc
-.ipynb_checkpoints
-artifacts
-outputs
-.pytest_cache
+.ipynb_checkpoints/
+outputs/
+.pytest_cache/
+
+# Ignore generated artifacts, but include the validated deployment checkpoint
+artifacts/*
+
+!artifacts/checkpoints/
+artifacts/checkpoints/*
+
+!artifacts/checkpoints/segformer_best/
+!artifacts/checkpoints/segformer_best/**
