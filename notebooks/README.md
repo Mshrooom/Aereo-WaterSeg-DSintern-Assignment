@@ -1,25 +1,40 @@
-# Notebook Guide
+## Notebook lineage
 
-## `01_four_experiments_research_record.ipynb`
+The complete assignment is preserved across the original comparative
+experiments and the later governed production extension.
 
-The original orchestration notebook for the four-experiment study.
+### Original comparative study — Experiments A–D
 
-Important limitation: it relied on an earlier source bundle that is not identical to the cleaned public package. It is retained for methodological transparency and result provenance, not as the primary clone-and-run entry point.
+The historical notebooks contain:
 
-## `02_segformer_optuna_mlflow_hpo.ipynb`
+- Experiment A: zero-shot SAM under controlled prompt modes;
+- Experiment B: water-specific fine-tuned SAM;
+- Experiment C: the historical automatic SegFormer baseline;
+- Experiment D: the automatic SegFormer-to-SAM hybrid.
 
-The constrained SegFormer-B0 pilot hyperparameter study.
+### Governed production extension — Experiment E
 
-It should:
+The V3 notebooks contain:
 
-- reconstruct the original deterministic split;
-- use fixed training and validation pilot subsets;
-- use Optuna for search;
-- use MLflow for local tracking;
-- optimize validation IoU;
-- avoid the held-out test split;
-- export all measured results to `evidence/results/hpo/`.
+- Optuna hyperparameter search;
+- same-code historical baseline confirmation;
+- top-candidate confirmation;
+- three-seed stability analysis;
+- resumable final training;
+- validation-only threshold calibration;
+- frozen held-out evaluation;
+- paired statistics and failure slices;
+- production inference and FastAPI validation;
+- model registry and release export.
 
-## Notebook policy
+| Notebook | Scope | Purpose |
+|---|---|---|
+| `notebooks/aereo-task-original.ipynb` | Original assignment | Initial comparative implementation and experiment development |
+| `notebooks/aereo-task-maanvi-bansal (1).ipynb` | Experiments A–D | Complete or executed comparative study; verify exact role from notebook contents |
+| `notebooks/aereo_sam_production_pipeline.ipynb` | Experiments A–B | Zero-shot SAM and water-specific SAM fine-tuning |
+| `notebooks/01_complete_segformer_production_pipeline_source.ipynb` | Experiment E, smoke/source | Low-cost validation of the governed V3 pipeline |
+| `notebooks/01_complete_segformer_production_pipeline_full_run.ipynb` | Experiment E, full | Recreate governed optimization, evaluation, and production evidence |
+| `notebooks/Aereo_Production_SegFormer_V3_EXECUTED.ipynb` | Experiment E, executed | Review measured V3 outputs without rerunning |
 
-Executed notebooks should preserve useful tables and plots but avoid embedding thousands of generated masks. Large checkpoints and bulk artifacts belong in Kaggle outputs or a GitHub release.
+The V3 pipeline consumes the preserved historical A–D result tables. It
+does not replace the original SAM, SegFormer, and hybrid experiments.
