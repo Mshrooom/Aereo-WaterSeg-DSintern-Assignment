@@ -14,17 +14,20 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends curl libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements/serve.in /app/requirements/serve.in
+COPY requirements/production.in /app/requirements/production.in
+
 RUN python -m pip install --upgrade pip \
-    && python -m pip install -r /app/requirements/serve.in
+    && python -m pip install -r /app/requirements/production.in
 
 COPY pyproject.toml README.md /app/
 COPY src /app/src
+
 RUN python -m pip install --no-deps -e /app
 
 RUN useradd --create-home --uid 10001 appuser \
     && mkdir -p /app/artifacts/checkpoints /app/artifacts/logs \
     && chown -R appuser:appuser /app
+
 USER appuser
 
 EXPOSE 8000
