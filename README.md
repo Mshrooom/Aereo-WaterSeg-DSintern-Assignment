@@ -1,6 +1,6 @@
 # Aereo Water-Body Segmentation — Data Science Intern Assignment
 
-[![SegFormer V3 CI](https://github.com/Mshrooom/Aereo-WaterSeg-DSintern-Assignment/actions/workflows/segformer-v3-ci.yml/badge.svg)](https://github.com/Mshrooom/Aereo-WaterSeg-DSintern-Assignment/actions/workflows/segformer-v3-ci.yml)
+[![SegFormer V3 CI](https://github.com/Mshrooom/Aereo-WaterSeg-DSintern-Assignment/actions/workflows/ci.yml/badge.svg)](https://github.com/Mshrooom/Aereo-WaterSeg-DSintern-Assignment/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/badge/release-v3.0.0-blue)](https://github.com/Mshrooom/Aereo-WaterSeg-DSintern-Assignment/releases/tag/v3.0.0)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-SegFormer-orange)](https://pytorch.org/)
@@ -274,11 +274,11 @@ The V3 ingestion pipeline:
 Key evidence:
 
 ```text
-registry/validated_manifest.csv
-registry/runtime_manifest.csv
-registry/split_registry.csv
-registry/data_registry.json
-registry/near_duplicate_audit.csv
+evidence/registry/validated_manifest.csv
+evidence/registry/runtime_manifest.csv
+evidence/registry/split_registry.csv
+evidence/registry/data_registry.json
+evidence/registry/near_duplicate_audit.csv
 ```
 
 ---
@@ -323,13 +323,13 @@ data
 .
 ├── .github/
 │   └── workflows/
-│       └── segformer-v3-ci.yml
+│       └── ci.yml
 ├── artifacts/
 │   ├── checkpoints/
 │   │   └── segformer_best/
 │   └── checksums/
-├── api_validation/               FastAPI smoke-test evidence
-├── calibration/                  Validation threshold sweep and selection
+├── evidence/api/               FastAPI smoke-test evidence
+├── evidence/calibration/                  Validation threshold sweep and selection
 ├── configs/
 │   ├── acceptance_criteria.yaml
 │   └── segformer_v3.yaml
@@ -337,39 +337,39 @@ data
 │   ├── dataset_card.md
 │   ├── model_card.md
 │   └── docker_validation/        Added after local container validation
-├── evaluation/
+├── evidence/evaluation/
 │   ├── segformer_v3_test_metrics.json
 │   ├── segformer_v3_all_2841.csv
 │   └── historical_comparison.csv
-├── figures/                      EDA, preprocessing, tiling and error figures
+├── reports/figures/                      EDA, preprocessing, tiling and error figures
 ├── notebooks/
 │   ├── Aereo_Production_SegFormer_V3_Source.ipynb
 │   ├── Aereo_Production_SegFormer_V3_Full_Run.ipynb
 │   ├── Aereo_Production_SegFormer_V3_EXECUTED.ipynb
 │   └── historical notebooks
-├── production_inference/         Sample image, mask, overlay, logs and latency
-├── registry/                     Data/model registry and selected model
+├── evidence/inference/         Sample image, mask, overlay, logs and latency
+├── evidence/registry/                     Data/model registry and selected model
 ├── requirements/
 │   ├── ci.in
 │   └── production.in
-├── results/
+├── evidence/results/
 │   └── full/                     Historical A-D per-image results
 ├── scripts/                      Training/inference/deployment utilities
-├── slices/                       Performance-slice results
+├── evidence/slices/                       Performance-slice results
 ├── src/
 │   ├── aereo_water/              Maintained V3 package
 │   │   ├── api/
 │   │   ├── data/
-│   │   ├── evaluation/
+│   │   ├── evidence/evaluation/
 │   │   ├── inference/
 │   │   ├── models/
 │   │   ├── pipeline/
 │   │   └── training/
 │   └── waterseg/                 Historical implementation
-├── statistics/                   Paired bootstrap and Wilcoxon evidence
+├── evidence/statistics/                   Paired bootstrap and Wilcoxon evidence
 ├── tests/                        Legacy and V3 unit/integration tests
-├── Dockerfile.v3
-├── docker-compose.v3.yml
+├── deployment/Dockerfile
+├── deployment/compose.yaml
 ├── pyproject.toml
 └── README.md
 ```
@@ -381,17 +381,17 @@ data
 | Understand the final workflow | `notebooks/Aereo_Production_SegFormer_V3_EXECUTED.ipynb` |
 | Run a cheap validation | `notebooks/Aereo_Production_SegFormer_V3_Source.ipynb` |
 | Recreate final evidence | `notebooks/Aereo_Production_SegFormer_V3_Full_Run.ipynb` |
-| Inspect final test metrics | `evaluation/segformer_v3_test_metrics.json` |
-| Inspect all per-image V3 results | `evaluation/segformer_v3_all_2841.csv` |
-| Compare historical models | `evaluation/historical_comparison.csv` and `results/full/` |
-| Inspect threshold selection | `calibration/selected_threshold.json` |
-| Inspect statistical significance | `statistics/paired_comparison.json` |
-| Inspect failure modes | `slices/` and `figures/qualitative_success_failure_analysis.png` |
+| Inspect final test metrics | `evidence/evaluation/segformer_v3_test_metrics.json` |
+| Inspect all per-image V3 results | `evidence/evaluation/segformer_v3_all_2841.csv` |
+| Compare historical models | `evidence/evaluation/historical_comparison.csv` and `evidence/results/full/` |
+| Inspect threshold selection | `evidence/calibration/selected_threshold.json` |
+| Inspect statistical significance | `evidence/statistics/paired_comparison.json` |
+| Inspect failure modes | `evidence/slices/` and `reports/figures/qualitative_success_failure_analysis.png` |
 | Load the selected model | `artifacts/checkpoints/segformer_best/` |
-| Verify model metadata/hash | `registry/selected_model.json` |
-| Inspect API evidence | `api_validation/` |
-| Inspect latency | `production_inference/latency_summary.json` |
-| Build the service | `Dockerfile.v3`, `docker-compose.v3.yml` |
+| Verify model metadata/hash | `evidence/registry/selected_model.json` |
+| Inspect API evidence | `evidence/api/` |
+| Inspect latency | `evidence/inference/latency_summary.json` |
+| Build the service | `deployment/Dockerfile`, `deployment/compose.yaml` |
 
 ---
 
@@ -464,7 +464,7 @@ The repository also contains the selected checkpoint and registry evidence under
 
 ```text
 artifacts/checkpoints/segformer_best/
-registry/selected_model.json
+evidence/registry/selected_model.json
 ```
 
 ---
@@ -722,7 +722,7 @@ from aereo_water.inference.predictor import SegFormerPredictor
 
 
 CHECKPOINT_DIR = Path("artifacts/checkpoints/segformer_best")
-SELECTED_MODEL = Path("registry/selected_model.json")
+SELECTED_MODEL = Path("evidence/registry/selected_model.json")
 INPUT_IMAGE = Path("sample_satellite_image.png")
 OUTPUT_DIR = Path("local_inference")
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -924,15 +924,15 @@ The service also checks checkpoint integrity against the selected-model registry
 Docker runtime validation is separate from the notebook. The repository provides:
 
 ```text
-Dockerfile.v3
-docker-compose.v3.yml
+deployment/Dockerfile
+deployment/compose.yaml
 ```
 
 ## Prerequisites
 
 - Docker Desktop is running;
 - the checkpoint exists at `artifacts/checkpoints/segformer_best/`;
-- `registry/selected_model.json` exists;
+- `evidence/registry/selected_model.json` exists;
 - port 8000 is available.
 
 Check Docker:
@@ -946,7 +946,7 @@ docker info
 
 ```powershell
 docker compose `
-  -f .\docker-compose.v3.yml `
+  -f .\deployment/compose.yaml `
   config
 ```
 
@@ -954,7 +954,7 @@ docker compose `
 
 ```powershell
 docker compose `
-  -f .\docker-compose.v3.yml `
+  -f .\deployment/compose.yaml `
   build --no-cache
 ```
 
@@ -962,7 +962,7 @@ Or build directly:
 
 ```powershell
 docker build `
-  -f .\Dockerfile.v3 `
+  -f .\deployment/Dockerfile `
   -t aereo-water-segformer:v3 .
 ```
 
@@ -970,7 +970,7 @@ docker build `
 
 ```powershell
 docker compose `
-  -f .\docker-compose.v3.yml `
+  -f .\deployment/compose.yaml `
   up -d
 ```
 
@@ -978,11 +978,11 @@ docker compose `
 
 ```powershell
 docker compose `
-  -f .\docker-compose.v3.yml `
+  -f .\deployment/compose.yaml `
   ps
 
 docker compose `
-  -f .\docker-compose.v3.yml `
+  -f .\deployment/compose.yaml `
   logs --tail=300
 ```
 
@@ -1008,7 +1008,7 @@ curl.exe `
 
 ```powershell
 docker compose `
-  -f .\docker-compose.v3.yml `
+  -f .\deployment/compose.yaml `
   restart
 
 Invoke-RestMethod http://localhost:8000/ready
@@ -1020,7 +1020,7 @@ Run inference again after restart.
 
 ```powershell
 docker compose `
-  -f .\docker-compose.v3.yml `
+  -f .\deployment/compose.yaml `
   down
 ```
 
@@ -1082,23 +1082,23 @@ Do not mark Docker validation complete until build, startup, valid request, inva
 
 ### Dataset exploration
 
-![Dataset EDA](figures/dataset_eda.png)
+![Dataset EDA](reports/figures/dataset_eda.png)
 
 ### Preprocessing and augmentation
 
-![Preprocessing and augmentation](figures/preprocessing_and_augmentation.png)
+![Preprocessing and augmentation](reports/figures/preprocessing_and_augmentation.png)
 
 ### Tiling and reconstruction
 
-![Tiling reconstruction](figures/tiling_reconstruction.png)
+![Tiling reconstruction](reports/figures/tiling_reconstruction.png)
 
 ### Qualitative successes and failures
 
-![Qualitative analysis](figures/qualitative_success_failure_analysis.png)
+![Qualitative analysis](reports/figures/qualitative_success_failure_analysis.png)
 
 ### Production inference
 
-![Production inference](figures/production_inference_evidence.png)
+![Production inference](reports/figures/production_inference_evidence.png)
 
 ---
 
@@ -1128,9 +1128,9 @@ Mean: 33.34 ms
 Evidence:
 
 ```text
-production_inference/end_to_end_latency.csv
-production_inference/latency_summary.json
-production_inference/inference.jsonl
+evidence/inference/end_to_end_latency.csv
+evidence/inference/latency_summary.json
+evidence/inference/inference.jsonl
 ```
 
 ---
@@ -1161,17 +1161,17 @@ No W&B account is required for offline reproduction.
 ## Data registry
 
 ```text
-registry/data_registry.json
-registry/validated_manifest.csv
-registry/runtime_manifest.csv
-registry/split_registry.csv
+evidence/registry/data_registry.json
+evidence/registry/validated_manifest.csv
+evidence/registry/runtime_manifest.csv
+evidence/registry/split_registry.csv
 ```
 
 ## Model registry
 
 ```text
-registry/selected_model.json
-registry/model_registry.csv
+evidence/registry/selected_model.json
+evidence/registry/model_registry.csv
 ```
 
 The selected-model record stores the checkpoint hash, threshold, preprocessing, parameters, metrics, latency, Git commit, HPO fingerprint and deployment status.
@@ -1183,7 +1183,7 @@ The selected-model record stores the checkpoint hash, threshold, preprocessing, 
 Canonical workflow:
 
 ```text
-.github/workflows/segformer-v3-ci.yml
+.github/workflows/ci.yml
 ```
 
 For pushes and pull requests to `main`, CI:

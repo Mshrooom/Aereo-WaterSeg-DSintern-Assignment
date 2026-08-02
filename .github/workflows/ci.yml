@@ -1,4 +1,4 @@
-﻿name: SegFormer V3 CI
+name: SegFormer V3 CI
 
 on:
   push:

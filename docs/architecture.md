@@ -48,7 +48,7 @@ Docker image
 
 Reusable code used by the maintained data, evaluation, inference, serving, logging, and utility paths.
 
-### Research archive: `research/legacy_training/`
+### Research archive: `docs/research/legacy_training/`
 
 Original experimental modules whose complete dependency bundle is not part of the cleaned active package.
 

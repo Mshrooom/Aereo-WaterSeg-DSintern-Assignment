@@ -66,7 +66,7 @@ Attach:
 1. **Satellite Images of Water Bodies** — raw `Images/` and `Masks/`.
 2. The repository is cloned from GitHub by the notebook.
 3. Historical per-image CSVs should already exist in the repository under
-   `results/full/`. The notebook also searches attached Kaggle inputs.
+   `evidence/results/full/`. The notebook also searches attached Kaggle inputs.
 4. For resumption, optionally attach a prior
    `aereo-water-v3-resume.zip` extraction.
 
@@ -183,11 +183,11 @@ no stale downstream artifact survives.
 ### Data and leakage
 
 ```text
-registry/validated_manifest.csv
-registry/runtime_manifest.csv
-registry/split_registry.csv
-registry/data_registry.json
-registry/near_duplicate_audit.csv
+evidence/registry/validated_manifest.csv
+evidence/registry/runtime_manifest.csv
+evidence/registry/split_registry.csv
+evidence/registry/data_registry.json
+evidence/registry/near_duplicate_audit.csv
 ```
 
 ### Tiling
@@ -226,29 +226,29 @@ final_training/history.csv
 ### Selection and evaluation
 
 ```text
-selected_final_parameters.json
-model_selection_lock.json
-calibration/validation_threshold_sweep.csv
-calibration/selected_threshold.json
-evaluation/segformer_v3_all_2841.csv
-evaluation/segformer_v3_test_metrics.json
-evaluation/historical_comparison.csv
-statistics/paired_comparison.json
-slices/
+evidence/run_state/selected_final_parameters.json
+evidence/registry/model_selection_lock.json
+evidence/calibration/validation_threshold_sweep.csv
+evidence/calibration/selected_threshold.json
+evidence/evaluation/segformer_v3_all_2841.csv
+evidence/evaluation/segformer_v3_test_metrics.json
+evidence/evaluation/historical_comparison.csv
+evidence/statistics/paired_comparison.json
+evidence/slices/
 ```
 
 ### Production evidence
 
 ```text
-production_inference/predicted_water_mask.png
-production_inference/predicted_water_overlay.png
-production_inference/inference.jsonl
-production_inference/latency_summary.json
-registry/model_registry.csv
-registry/selected_model.json
+evidence/inference/predicted_water_mask.png
+evidence/inference/predicted_water_overlay.png
+evidence/inference/inference.jsonl
+evidence/inference/latency_summary.json
+evidence/registry/model_registry.csv
+evidence/registry/selected_model.json
 docs/model_card.md
 docs/dataset_card.md
-api_validation/api_smoke_test.json
+evidence/api/api_smoke_test.json
 ```
 
 ### Exported bundles
@@ -295,11 +295,11 @@ artifacts/checkpoints/
 build the V3 service:
 
 ```powershell
-docker compose -f docker-compose.v3.yml config
-docker compose -f docker-compose.v3.yml build --no-cache
-docker compose -f docker-compose.v3.yml up -d
-docker compose -f docker-compose.v3.yml ps
-docker compose -f docker-compose.v3.yml logs --tail=300
+docker compose -f deployment/compose.yaml config
+docker compose -f deployment/compose.yaml build --no-cache
+docker compose -f deployment/compose.yaml up -d
+docker compose -f deployment/compose.yaml ps
+docker compose -f deployment/compose.yaml logs --tail=300
 ```
 
 Validate:

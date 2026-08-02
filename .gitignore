@@ -68,3 +68,13 @@ results/hpo/trials/
 !src/aereo_water/data/**
 !src/aereo_water/models/
 !src/aereo_water/models/**
+
+# Generated models and experiment outputs
+artifacts/checkpoints/
+artifacts/predictions/
+artifacts/overlays/
+artifacts/logs/
+artifacts/mlruns/
+artifacts/wandb/
+*.onnx
+*.engine

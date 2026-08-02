@@ -32,14 +32,14 @@ Epoch-level histories:
 
 Losses should be compared within a model family, not directly across different training objectives.
 
-### `calibration/`
+### `evidence/calibration/`
 
 Validation-only output calibration:
 
 - `experiment_D_threshold_sweep.csv`
 - `threshold_sweeps/`: epoch-specific threshold tables
 
-### `registry/`
+### `evidence/registry/`
 
 Model and artifact metadata:
 
@@ -66,7 +66,7 @@ Measured Optuna and MLflow pilot-study outputs will be placed here:
 - optimization figures
 - study metadata
 
-### `figures/`
+### `reports/figures/`
 
 Report-ready plots.
 

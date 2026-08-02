@@ -18,7 +18,7 @@ It should:
 - use MLflow for local tracking;
 - optimize validation IoU;
 - avoid the held-out test split;
-- export all measured results to `results/hpo/`.
+- export all measured results to `evidence/results/hpo/`.
 
 ## Notebook policy
 

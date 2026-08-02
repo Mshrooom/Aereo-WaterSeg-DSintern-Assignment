@@ -1,8 +1,8 @@
 services:
   water-segmentation-v3:
     build:
-      context: .
-      dockerfile: Dockerfile.v3
+      context: ..
+      dockerfile: deployment/Dockerfile
     image: aereo-water-segmentation:v3
     ports:
       - "8000:8000"

@@ -1,4 +1,4 @@
-﻿# Aereo Water Segmentation V3
+# Aereo Water Segmentation V3
 
 Production-oriented water segmentation using SegFormer-B0.
 
