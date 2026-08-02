@@ -16,6 +16,15 @@ RUN apt-get update \
 
 COPY requirements/production.in /app/requirements/production.in
 
+# Embed the validated production checkpoint and registry.
+COPY artifacts/checkpoints/segformer_best \
+     /app/artifacts/checkpoints/segformer_best
+
+COPY evidence/registry/selected_model.json \
+     /app/evidence/registry/selected_model.json
+
+RUN mkdir -p /app/artifacts/logs
+
 RUN python -m pip install --upgrade pip \
     && python -m pip install -r /app/requirements/production.in
 
