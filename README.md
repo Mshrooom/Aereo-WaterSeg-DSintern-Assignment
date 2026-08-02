@@ -1,73 +1,71 @@
 # Aereo Water-Body Segmentation — Data Science Intern Assignment
 
-[![SegFormer V3 CI](https://github.com/Mshrooom/Aereo-WaterSeg-DSintern-Assignment/actions/workflows/ci.yml/badge.svg)](https://github.com/Mshrooom/Aereo-WaterSeg-DSintern-Assignment/actions/workflows/ci.yml)
+[![CI](https://github.com/Mshrooom/Aereo-WaterSeg-DSintern-Assignment/actions/workflows/ci.yml/badge.svg)](https://github.com/Mshrooom/Aereo-WaterSeg-DSintern-Assignment/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/badge/release-v3.0.0-blue)](https://github.com/Mshrooom/Aereo-WaterSeg-DSintern-Assignment/releases/tag/v3.0.0)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org/)
-[![PyTorch](https://img.shields.io/badge/PyTorch-SegFormer-orange)](https://pytorch.org/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-Segmentation-orange)](https://pytorch.org/)
 
-A complete, production-oriented machine-learning system for automatic water-body segmentation from RGB satellite imagery.
+A complete comparative and production-oriented study of **water-body segmentation from RGB satellite imagery**.
 
-The project combines rigorous model development with reproducible data engineering, evaluation, experiment tracking, and deployment. It compares zero-shot SAM, fine-tuned SAM, SegFormer, and a SegFormer-to-SAM hybrid, while selecting SegFormer-B0 as the final production model because it achieved the strongest balance of segmentation accuracy, boundary quality, latency, and operational simplicity.
+The repository evaluates five systems:
 
-The pipeline includes leakage-aware data splitting, Optuna-based hyperparameter optimization, same-code baseline confirmation, multi-seed stability analysis, resumable training, validation-only threshold calibration, frozen held-out test evaluation, paired statistical testing, and complete per-image result registries. **MLflow is used as the primary experiment-tracking and model-governance layer**, recording hyperparameters, metrics, checkpoints, artifacts, and model-selection evidence across HPO, confirmation, stability, training, and evaluation stages.
+1. zero-shot Segment Anything Model (SAM);
+2. water-specific fine-tuned SAM;
+3. direct SegFormer-B0 semantic segmentation;
+4. an automatic SegFormer-to-SAM refinement pipeline;
+5. a governed SegFormer-B0 optimization experiment.
 
-The repository also provides data and model registries, structured inference logging, FastAPI serving, Docker packaging, continuous integration, checksum-verified release artifacts, and reproducibility documentation. The result is not only a trained segmentation model, but a traceable end-to-end system that can be independently reviewed, reproduced, tested, and deployed.
+The project demonstrates more than a final model score. It includes validated data ingestion, leakage-controlled splitting, synchronized preprocessing, promptable and automatic segmentation experiments, Optuna search, MLflow tracking, seed-stability analysis, validation-only threshold calibration, frozen held-out evaluation, paired statistics, failure slices, model and data registries, FastAPI inference, Docker packaging, continuous integration, and versioned evidence.
 
-
----
-
-## Table of contents
-
-1. [Project objective](#project-objective)
-2. [Executive results](#executive-results)
-3. [Architecture](#Architecture)
-4. [Dataset and split](#dataset-and-split)
-5. [Scientific and reproducibility guardrails](#scientific-and-reproducibility-guardrails)
-6. [Repository navigation](#repository-navigation)
-7. [Quick start: use the released model](#quick-start-use-the-released-model)
-8. [Environment setup](#environment-setup)
-9. [Recreate the experiment](#recreate-the-experiment)
-10. [Smoke profile](#smoke-profile)
-11. [Full profile](#full-profile)
-12. [Resume an interrupted run](#resume-an-interrupted-run)
-13. [Run direct Python inference](#run-direct-python-inference)
-14. [Run the FastAPI service](#run-the-fastapi-service)
-15. [Call the API with an image](#call-the-api-with-an-image)
-16. [Build and run Docker](#build-and-run-docker)
-17. [Results and comparison](#results-and-comparison)
-18. [Latency and resource results](#latency-and-resource-results)
-19. [Experiment tracking and registries](#experiment-tracking-and-registries)
-20. [Tests and continuous integration](#tests-and-continuous-integration)
-21. [Release assets and integrity](#release-assets-and-integrity)
-23. [Known limitations](#known-limitations)
-24. [Recommended next improvements](#recommended-next-improvements)
+The governed SegFormer-B0 checkpoint is the **selected automatic deployment candidate** because it provides the strongest combined automatic overlap, boundary quality, latency, and operational simplicity. Fine-tuned SAM remains an analyst-assisted research option, while the hybrid is preserved as a valuable negative result.
 
 ---
 
-# Project objective
+## Contents
 
-The assignment objective is to build a complete machine-learning solution for water-body segmentation in satellite imagery, including:
-
-- scalable image and mask ingestion;
-- validation, normalization, augmentation, and tiling;
-- end-to-end PyTorch model training;
-- hyperparameter optimization;
-- experiment tracking;
-- data and model registries;
-- optimized inference;
-- request-level logging;
-- FastAPI serving;
-- containerized deployment;
-- reproducible code, evidence, report, and presentation.
-
-The maintained system answers two questions:
-
-1. **Modeling:** Can a reproducible SegFormer pipeline improve or match the historical automatic SegFormer result under controlled model selection?
-2. **Engineering:** Can the selected model be packaged as a traceable, integrity-checked inference service rather than remaining only in a notebook?
+1. [Project status](#project-status)
+2. [Key results](#key-results)
+3. [Experiment suite](#experiment-suite)
+4. [System architecture](#system-architecture)
+5. [Dataset and governance](#dataset-and-governance)
+6. [Repository structure](#repository-structure)
+7. [Quick start](#quick-start)
+8. [Obtain the model artifact](#obtain-the-model-artifact)
+9. [Run direct Python inference](#run-direct-python-inference)
+10. [Run the FastAPI service](#run-the-fastapi-service)
+11. [Recreate the Docker image and run the container](#recreate-the-docker-image-and-run-the-container)
+12. [Reproduce the experiments](#reproduce-the-experiments)
+13. [Evidence, tracking, and registries](#evidence-tracking-and-registries)
+14. [Tests and continuous integration](#tests-and-continuous-integration)
+15. [Limitations and future work](#limitations-and-future-work)
+16. [Documentation](#documentation)
 
 ---
 
-# Executive results
+# Project status
+
+| Component | Status |
+|---|---|
+| Dataset validation and deterministic split registry | Completed |
+| Zero-shot SAM experiment | Completed |
+| Fine-tuned SAM experiment | Completed |
+| Historical SegFormer experiment | Completed |
+| Automatic SegFormer-to-SAM hybrid | Completed |
+| Governed SegFormer optimization | Completed |
+| Frozen held-out test evaluation | Completed |
+| Paired bootstrap and Wilcoxon analysis | Completed |
+| MLflow experiment tracking and registries | Completed |
+| FastAPI in-process validation | Completed |
+| Repository test suite | **43 passed** |
+| GitHub Actions CI | Configured in `.github/workflows/ci.yml` |
+| Dockerfile and Compose packaging | Provided |
+| External Docker build/start/restart validation | **Pending until executed and preserved as evidence** |
+
+The repository is production-oriented, but it does not claim that external Docker runtime validation is complete before the real container lifecycle has been executed.
+
+---
+
+# Key results
 
 ## Dataset
 
@@ -77,12 +75,14 @@ The maintained system answers two questions:
 | Training images | 1,991 |
 | Validation images | 429 |
 | Held-out test images | 421 |
-| Modalities | RGB imagery + binary water mask |
-| Input dimensions | Variable |
-| Production model input | 512 × 512 letterboxed |
-| Output | Original-resolution binary PNG mask |
+| Input modality | RGB satellite imagery |
+| Target | Binary water/non-water mask |
+| Model input | 512 × 512 letterboxed |
+| Service output | Original-resolution binary PNG |
 
-## Selected production system
+The held-out test set contains **zero empty masks**. Empty-scene false-positive robustness is therefore `NOT_APPLICABLE`, not zero and not passed.
+
+## Selected automatic system
 
 | Item | Value |
 |---|---|
@@ -90,17 +90,17 @@ The maintained system answers two questions:
 | Pretrained checkpoint | `nvidia/segformer-b0-finetuned-ade-512-512` |
 | Output classes | 2: non-water, water |
 | Resize policy | Aspect-ratio-preserving letterbox |
-| Selected threshold | 0.45 |
+| Validation-selected threshold | 0.45 |
 | Loss | Cross-entropy + Dice |
 | Selected loss weights | CE 0.4, Dice 0.6 |
-| Selected augmentation profile | Light |
+| Augmentation profile | Light |
 | Experiment tracker | MLflow |
-| Optional mirror | W&B offline runs |
+| Optional visualization mirror | W&B offline |
 | Model version | `segformer-v3.0.0` |
 
-## Final held-out test metrics
+## Final held-out metrics
 
-| Metric | V3 result |
+| Metric | Result |
 |---|---:|
 | Mean per-image IoU | **0.727625** |
 | Dice | **0.825825** |
@@ -110,59 +110,92 @@ The maintained system answers two questions:
 | Pixel accuracy | **0.896098** |
 | Balanced accuracy | **0.863059** |
 | Matthews correlation coefficient | **0.698699** |
-| Cohen's kappa | **0.728508** |
+| Cohen’s kappa | **0.728508** |
 | Boundary F1 | **0.655815** |
 | Boundary IoU | **0.196826** |
 | Global IoU | **0.904199** |
 | Global Dice | **0.949689** |
 
+Mean per-image IoU is the primary comparison statistic because source image dimensions vary substantially. Global metrics are retained as secondary pixel-weighted evidence.
+
+## Paired improvement over the historical SegFormer
+
+| Statistic | Result |
+|---|---:|
+| Mean paired IoU difference | **+0.008631** |
+| 95% paired-bootstrap confidence interval | **[0.002960, 0.014245]** |
+| Wilcoxon signed-rank p-value | **1.14 × 10⁻⁹** |
+| Images improved | 61.28% |
+| Images degraded | 34.92% |
+| Images unchanged | 3.80% |
+
 ## Measured inference performance
 
-Measured on a Kaggle Tesla T4 GPU with batch size 1 and a 512 × 512 model input:
+Measured on a Kaggle Tesla T4 with batch size 1:
 
 | Metric | Result |
 |---|---:|
 | Cold start | 143.89 ms |
-| P50 model-forward latency | 12.05 ms |
-| P95 model-forward latency | 20.81 ms |
-| Mean model-forward latency | 13.53 ms |
-| P50 end-to-end latency | 31.91 ms |
-| P95 end-to-end latency | 39.53 ms |
-| Mean end-to-end latency | 33.34 ms |
-| Throughput | 73.92 images/s |
+| P50 model-forward | 12.05 ms |
+| P95 model-forward | 20.81 ms |
+| Mean model-forward | 13.53 ms |
+| P50 end-to-end | 31.91 ms |
+| P95 end-to-end | 39.53 ms |
+| Mean end-to-end | 33.34 ms |
+| Model-forward throughput | 73.92 images/s |
 | Peak inference GPU memory | 283.62 MB |
 
-Latency depends on hardware, drivers, dependency versions, storage, image dimensions, and service concurrency. The historical `8.3 ms` SegFormer result is a different model-stage timing measurement and should not be directly compared with V3 end-to-end API latency.
-
+Model-forward and end-to-end timings measure different scopes and should not be combined. Performance will vary with hardware, drivers, storage, input dimensions, and service concurrency.
 
 ---
 
-# Architecture
+# Experiment suite
 
-## Inference architecture
+| System | Inference input | Adaptation | Scientific purpose | Deployment interpretation |
+|---|---|---|---|---|
+| Zero-shot SAM | RGB + oracle prompt | None | Measure prompt sensitivity and foundation-model transfer | Controlled benchmark only |
+| Fine-tuned SAM | RGB + oracle/user prompt | Water-specific mask-decoder adaptation | Measure domain adaptation under matched prompts | Analyst-assisted option |
+| Historical SegFormer | RGB only | End-to-end semantic segmentation | Establish the original automatic baseline | Strong original candidate |
+| SegFormer-to-SAM hybrid | RGB only; prompts generated internally | Reuses SegFormer and fine-tuned SAM | Test whether promptable refinement improves automatic masks | Complex negative ablation |
+| Governed SegFormer | RGB only | Optuna, same-code confirmation, three seeds, resumable training, calibration | Test controlled improvement of the strongest automatic family | Selected deployment candidate |
+
+## Representative held-out comparison
+
+| System | Automatic? | IoU | Dice | Precision | Recall | Boundary F1 |
+|---|---:|---:|---:|---:|---:|---:|
+| Zero-shot SAM, multiple points | No | 0.566666 | 0.688989 | 0.8113 | 0.6701 | 0.354419 |
+| Fine-tuned SAM, representative prompted mode | No | 0.603761 | 0.735317 | 0.7670 | 0.7395 | 0.392837 |
+| Historical SegFormer | Yes | 0.718995 | 0.819071 | 0.8596* | 0.8059* | 0.598512 |
+| SegFormer-to-SAM hybrid | Yes | 0.609329 | 0.735206 | 0.6914 | 0.8495 | 0.413059 |
+| Governed SegFormer | Yes | 0.727625 | 0.825825 | 0.860920 | 0.815868 | 0.655815 |
+
+`*` Historical precision and recall are retained at the precision available in the archived result summary.
+
+The hybrid recovers more water pixels but introduces substantially more false positives, lowers overlap and boundary quality, increases latency, and adds another model, threshold, prompt-generation stage, and fallback path.
+
+---
+
+# System architecture
+
+## Inference path
 
 ```text
 RGB satellite image
         │
         ▼
-Input validation
-  - content type
-  - upload size
-  - pixel count
+Request and image validation
         │
         ▼
-Aspect-ratio-preserving letterbox resize
+Aspect-ratio-preserving letterbox preprocessing
         │
         ▼
-SegFormer-B0
-  MiT encoder + lightweight decoder
-  two-class logits: non-water / water
+Registered SegFormer-B0 checkpoint
         │
         ▼
-Softmax water probability
+Two-class logits and water probability
         │
         ▼
-Restore probability map to original resolution
+Restore probability map to original dimensions
         │
         ▼
 Validation-selected threshold = 0.45
@@ -174,34 +207,31 @@ Binary water mask
         │
         ├── PNG response
         ├── optional overlay
-        └── structured JSONL request log
+        └── structured JSONL request record
 ```
 
-## Training and selection architecture
+## Governed experiment path
 
 ```text
-Raw image-mask pairs
+Validated image-mask manifest
         │
         ▼
-Decode and integrity validation
+Deterministic train/validation/test registry
         │
         ▼
-Portable manifest + deterministic split registry
+Exact and perceptual duplicate audit
         │
         ▼
-Exact/near-duplicate leakage audit
+Synchronized augmentation and letterbox preprocessing
         │
         ▼
-Synchronized augmentation + letterbox preprocessing
+Optuna search on train/validation only
         │
         ▼
-Optuna HPO on train/validation only
+Historical same-code baseline + top-candidate confirmation
         │
         ▼
-Historical same-code baseline + top-three confirmation
-        │
-        ▼
-Three-seed stability analysis
+Three-seed stability: 42, 2026, 3407
         │
         ▼
 Resumable final training
@@ -213,63 +243,49 @@ Validation-only threshold calibration
 Model-selection lock
         │
         ▼
-Frozen held-out test evaluation
+Frozen 421-image held-out evaluation
         │
         ▼
-Statistics, slices, registry, inference and API export
+Statistics, slices, registries, inference, API, and release export
 ```
-
-## Why SegFormer-B0
-
-SegFormer-B0 was selected because it provides the strongest combination of:
-
-- fully automatic prediction;
-- overlap quality;
-- boundary quality;
-- low latency;
-- small checkpoint size;
-- simple serving architecture;
-- no prompts, clicks, boxes, or second model at inference.
-
-The SAM-based systems remain useful ablations, but the additional complexity did not produce a better production trade-off.
 
 ---
 
-# Dataset and split
+# Dataset and governance
 
 The project uses the **Satellite Images of Water Bodies** dataset:
 
 - 2,841 RGB satellite images;
 - 2,841 corresponding binary masks;
-- variable spatial dimensions;
-- water and non-water labels;
-- PNG, TIFF, or GeoTIFF-compatible ingestion.
+- variable source dimensions;
+- binary water/non-water targets;
+- PNG, TIFF, and GeoTIFF-compatible ingestion paths.
 
-The deterministic split is:
+## Deterministic split
 
-| Split | Count | Purpose |
+| Split | Count | Permitted use |
 |---|---:|---|
-| Train | 1,991 | Model fitting |
-| Validation | 429 | HPO, early stopping, checkpoint selection, confirmation, threshold calibration |
-| Test | 421 | Final reporting only |
-| **Total** | **2,841** | |
+| Training | 1,991 | Weight optimization and training-only transformations |
+| Validation | 429 | HPO, early stopping, confirmation, checkpoint selection, and threshold calibration |
+| Held-out test | 421 | Final reporting only, after decisions are locked |
+| **Total** | **2,841** | Registered corpus |
 
-The split is defined at the parent-image level before optional tiling. Tiles from one parent image must never cross split boundaries.
+Parent images are assigned to a split before optional tiling. Tiles from one parent image must not cross split boundaries.
 
-## Ingestion checks
+## Validation and leakage controls
 
-The V3 ingestion pipeline:
+The ingestion pipeline:
 
-1. recursively discovers candidate images and masks;
-2. matches pairs by identifier/stem;
-3. rejects missing or duplicate pairs;
-4. verifies that every file decodes;
-5. verifies image-mask spatial compatibility;
-6. normalizes mask interpretation;
-7. measures water coverage;
-8. calculates cryptographic hashes;
-9. audits exact and perceptual duplicates;
-10. writes portable data and split registries.
+1. discovers image and mask candidates recursively;
+2. pairs files using stable identifiers;
+3. rejects unreadable, duplicate, missing, or incompatible pairs;
+4. preserves original dimensions;
+5. normalizes mask interpretation;
+6. measures water coverage;
+7. computes SHA-256 evidence;
+8. audits exact and perceptual duplicates;
+9. writes portable manifests;
+10. writes a deterministic split registry consumed by every experiment.
 
 Key evidence:
 
@@ -279,173 +295,149 @@ evidence/registry/runtime_manifest.csv
 evidence/registry/split_registry.csv
 evidence/registry/data_registry.json
 evidence/registry/near_duplicate_audit.csv
+evidence/registry/model_selection_lock.json
 ```
 
 ---
 
-# Scientific and reproducibility guardrails
-
-The experiment is designed to prevent optimistic leakage and retrospective model selection.
-
-- HPO, confirmation, seed stability, early stopping, and threshold selection never receive test rows.
-- The HPO objective is mean per-image original-resolution validation IoU at threshold 0.50.
-- The final probability threshold is selected once on validation after final training.
-- A model-selection lock is written before the held-out test dataframe is materialized.
-- The historical SegFormer hyperparameters are rerun through the same V3 training engine.
-- Historical SAM prompt modes are selected with historical validation rows, not test rows.
-- The production seed is declared before test evaluation.
-- Three seeds—42, 2026, and 3407—are used to quantify stability.
-- Model-forward and end-to-end latency are reported separately.
-- Checkpoint hashes are stored and checked during production loading.
-- Compliance is derived from generated evidence rather than hard-coded success flags.
-- Smoke and full outputs use different roots and cannot be confused.
-
-The automatic stage graph is:
-
-```text
-data
-  → hpo
-  → confirmation
-  → stability
-  → final_train
-  → calibrate
-  → evaluate
-  → inference
-  → api_test
-  → export
-```
-
----
-
-# Repository navigation
+# Repository structure
 
 ```text
 .
 ├── .github/
-│   └── workflows/
-│       └── ci.yml
-├── artifacts/
-│   ├── checkpoints/
-│   │   └── segformer_best/
-│   └── checksums/
-├── evidence/api/               FastAPI smoke-test evidence
-├── evidence/calibration/                  Validation threshold sweep and selection
-├── configs/
-│   ├── acceptance_criteria.yaml
-│   └── segformer_v3.yaml
-├── docs/
-│   ├── dataset_card.md
-│   ├── model_card.md
-│   └── docker_validation/        Added after local container validation
-├── evidence/evaluation/
-│   ├── segformer_v3_test_metrics.json
-│   ├── segformer_v3_all_2841.csv
-│   └── historical_comparison.csv
-├── reports/figures/                      EDA, preprocessing, tiling and error figures
-├── notebooks/
-│   ├── Aereo_Production_SegFormer_V3_Source.ipynb
-│   ├── Aereo_Production_SegFormer_V3_Full_Run.ipynb
-│   ├── Aereo_Production_SegFormer_V3_EXECUTED.ipynb
-│   └── historical notebooks
-├── evidence/inference/         Sample image, mask, overlay, logs and latency
-├── evidence/registry/                     Data/model registry and selected model
-├── requirements/
-│   ├── ci.in
-│   └── production.in
-├── evidence/results/
-│   └── full/                     Historical A-D per-image results
-├── scripts/                      Training/inference/deployment utilities
-├── evidence/slices/                       Performance-slice results
+│   └── workflows/              GitHub Actions CI
+├── configs/                    Pipeline and acceptance configuration
+├── deployment/                 Canonical Dockerfile and Compose configuration
+├── docs/                       Dataset/model cards, architecture, runbook, release notes
+├── evidence/                   Small committed experimental evidence
+│   ├── acceptance/
+│   ├── api/
+│   ├── calibration/
+│   ├── environment/
+│   ├── evaluation/
+│   ├── inference/
+│   ├── registry/
+│   ├── results/
+│   ├── run_state/
+│   ├── slices/
+│   └── statistics/
+├── legacy/                     Historical code and deployment assets
+├── notebooks/                  Source, full-run, executed, and historical notebooks
+├── reports/                    Human-facing figures and report assets
+├── requirements/               Environment profiles
+├── scripts/                    Training, evaluation, inference, and export utilities
 ├── src/
-│   ├── aereo_water/              Maintained V3 package
+│   ├── aereo_water/            Maintained V3 package
 │   │   ├── api/
 │   │   ├── data/
-│   │   ├── evidence/evaluation/
+│   │   ├── evaluation/
 │   │   ├── inference/
 │   │   ├── models/
 │   │   ├── pipeline/
 │   │   └── training/
-│   └── waterseg/                 Historical implementation
-├── evidence/statistics/                   Paired bootstrap and Wilcoxon evidence
-├── tests/                        Legacy and V3 unit/integration tests
-├── deployment/Dockerfile
-├── deployment/compose.yaml
+│   └── waterseg/               Historical installed package
+├── tests/                      Unit and integration tests
+├── .dockerignore
+├── .gitignore
+├── Makefile
 ├── pyproject.toml
 └── README.md
 ```
 
+Large generated artifacts are intentionally excluded from Git:
+
+```text
+artifacts/checkpoints/
+artifacts/predictions/
+artifacts/overlays/
+artifacts/logs/
+artifacts/mlruns/
+artifacts/wandb/
+```
+
+Obtain checkpoints through the GitHub release or recreate them through the full experiment.
+
 ## Where to look first
 
-| Goal | File or directory |
+| Goal | Path |
 |---|---|
-| Understand the final workflow | `notebooks/Aereo_Production_SegFormer_V3_EXECUTED.ipynb` |
-| Run a cheap validation | `notebooks/Aereo_Production_SegFormer_V3_Source.ipynb` |
-| Recreate final evidence | `notebooks/Aereo_Production_SegFormer_V3_Full_Run.ipynb` |
-| Inspect final test metrics | `evidence/evaluation/segformer_v3_test_metrics.json` |
-| Inspect all per-image V3 results | `evidence/evaluation/segformer_v3_all_2841.csv` |
-| Compare historical models | `evidence/evaluation/historical_comparison.csv` and `evidence/results/full/` |
-| Inspect threshold selection | `evidence/calibration/selected_threshold.json` |
-| Inspect statistical significance | `evidence/statistics/paired_comparison.json` |
-| Inspect failure modes | `evidence/slices/` and `reports/figures/qualitative_success_failure_analysis.png` |
-| Load the selected model | `artifacts/checkpoints/segformer_best/` |
-| Verify model metadata/hash | `evidence/registry/selected_model.json` |
+| Review the complete executed workflow | `notebooks/Aereo_Production_SegFormer_V3_EXECUTED.ipynb` |
+| Run a smoke validation | `notebooks/Aereo_Production_SegFormer_V3_Source.ipynb` |
+| Recreate the full governed experiment | `notebooks/Aereo_Production_SegFormer_V3_Full_Run.ipynb` |
+| Inspect final metrics | `evidence/evaluation/segformer_v3_test_metrics.json` |
+| Inspect all V3 per-image rows | `evidence/evaluation/segformer_v3_all_2841.csv` |
+| Inspect historical experiments | `evidence/results/full/` |
+| Inspect threshold calibration | `evidence/calibration/` |
+| Inspect paired statistics | `evidence/statistics/` |
+| Inspect failure slices | `evidence/slices/` |
+| Inspect selected model metadata | `evidence/registry/selected_model.json` |
 | Inspect API evidence | `evidence/api/` |
-| Inspect latency | `evidence/inference/latency_summary.json` |
+| Inspect latency evidence | `evidence/inference/` |
 | Build the service | `deployment/Dockerfile`, `deployment/compose.yaml` |
 
 ---
 
-# Quick start: use the released model
+# Quick start
 
-The quickest path does not retrain anything.
+> **Use a fresh virtual environment. Do not install the project into a shared or global Python environment.**
 
-## 1. Clone
+## Windows PowerShell
 
 ```powershell
 git clone `
   https://github.com/Mshrooom/Aereo-WaterSeg-DSintern-Assignment.git
 
 Set-Location Aereo-WaterSeg-DSintern-Assignment
-```
 
-## 2. Create an environment
-
-```powershell
 py -3.11 -m venv .venv
-.\.venv\Scripts\Activate.ps1
-```
-
-When PowerShell blocks activation for the current session:
-
-```powershell
 Set-ExecutionPolicy -Scope Process Bypass
 .\.venv\Scripts\Activate.ps1
-```
 
-## 3. Install
-
-```powershell
 python -m pip install --upgrade pip setuptools wheel
-python -m pip install -r .
-equirements\production.in
-python -m pip install --no-deps --editable .
+python -m pip install --editable .
+python -m pip check
 ```
 
-## 4. Verify
+Verify that Python comes from the repository virtual environment:
 
 ```powershell
-python -c "import aereo_water; print(aereo_water.__version__)"
-python -c "from aereo_water.inference.predictor import SegFormerPredictor; print('predictor import passed')"
-python -m compileall -q src scripts
+python -c "import sys; print(sys.executable)"
 ```
 
-## 5. Get the deployment artifact
+The printed path should contain:
 
-Release page:
+```text
+Aereo-WaterSeg-DSintern-Assignment\.venv\
+```
 
-**[Aereo Water Segmentation V3 — v3.0.0](https://github.com/Mshrooom/Aereo-WaterSeg-DSintern-Assignment/releases/tag/v3.0.0)**
+## Local tests
 
-The release contains or links to:
+```powershell
+python -m pip install -r .\requirements\ci.in
+python -m compileall -q src scripts
+python -m pytest -q
+python -m pip check
+```
+
+Expected repository evidence:
+
+```text
+43 passed
+```
+
+The latest GitHub Actions run is the source of truth for the current commit.
+
+---
+
+# Obtain the model artifact
+
+The selected checkpoint is not assumed to exist in a fresh clone.
+
+Download the deployment bundle from:
+
+**[GitHub Release v3.0.0](https://github.com/Mshrooom/Aereo-WaterSeg-DSintern-Assignment/releases/tag/v3.0.0)**
+
+Expected release assets include:
 
 ```text
 aereo-water-v3-github-evidence.zip
@@ -453,263 +445,73 @@ aereo-water-segformer-v3-deployment.zip
 AEREO_V3_SHA256SUMS.txt
 ```
 
-Extract `aereo-water-segformer-v3-deployment.zip`. Its deployable content should include:
-
-```text
-segformer_best/
-selected_model.json
-```
-
-The repository also contains the selected checkpoint and registry evidence under:
-
-```text
-artifacts/checkpoints/segformer_best/
-evidence/registry/selected_model.json
-```
-
----
-
-# Environment setup
-
-## Supported environment
-
-Recommended:
-
-- Python 3.11;
-- CUDA GPU for training;
-- CPU or CUDA for inference;
-- Docker Desktop for container validation;
-- sufficient writable disk for HPO and tracking artifacts.
-
-The final full notebook was executed on:
-
-```text
-Python: 3.12.13
-PyTorch: 2.10.0+cu128
-GPU: Tesla T4
-GPU memory: 14.56 GB
-```
-
-The repository CI uses Python 3.11 and a CPU PyTorch installation.
-
-## Production dependencies
+## Verify the downloaded bundle
 
 ```powershell
-python -m pip install -r .
-equirements\production.in
+Get-FileHash `
+  .\aereo-water-segformer-v3-deployment.zip `
+  -Algorithm SHA256
+
+Get-Content .\AEREO_V3_SHA256SUMS.txt
 ```
 
-## CI/test dependencies
+Compare the calculated hash with the checksum manifest before extraction.
+
+## Extract and place the checkpoint
+
+The following PowerShell block searches the extracted bundle rather than assuming one fixed ZIP directory layout:
 
 ```powershell
-python -m pip install -r .
-equirements\ci.in
+$Bundle = ".\aereo-water-segformer-v3-deployment.zip"
+$ExtractRoot = ".\artifacts\deployment_bundle"
+$CheckpointRoot = ".\artifacts\checkpoints"
+
+New-Item -ItemType Directory -Force $ExtractRoot | Out-Null
+New-Item -ItemType Directory -Force $CheckpointRoot | Out-Null
+
+Expand-Archive `
+  -Path $Bundle `
+  -DestinationPath $ExtractRoot `
+  -Force
+
+$Checkpoint = Get-ChildItem `
+  -Path $ExtractRoot `
+  -Directory `
+  -Recurse `
+  -Filter "segformer_best" |
+  Select-Object -First 1
+
+if (-not $Checkpoint) {
+    throw "segformer_best was not found in the deployment bundle."
+}
+
+$Target = Join-Path $CheckpointRoot "segformer_best"
+
+if (Test-Path $Target) {
+    Remove-Item -Recurse -Force $Target
+}
+
+Copy-Item `
+  -Path $Checkpoint.FullName `
+  -Destination $Target `
+  -Recurse `
+  -Force
+
+Write-Host "Checkpoint installed at: $Target"
 ```
 
-## Editable package installation
+Confirm:
 
 ```powershell
-python -m pip install --no-deps --editable .
+Test-Path ".\artifacts\checkpoints\segformer_best"
+Test-Path ".\evidence\registry\selected_model.json"
 ```
 
-## Complete local verification
-
-```powershell
-python -m compileall -q src scripts
-python -m pytest -q
-```
-
-The final executed evidence recorded 43 passing repository tests. The current GitHub Actions run is the source of truth for the latest commit.
-
----
-
-# Recreate the experiment
-
-The supported full reproduction environment is Kaggle because the full profile requires a GPU and produces substantial intermediate evidence.
-
-## Kaggle inputs
-
-Attach:
-
-1. the **Satellite Images of Water Bodies** dataset containing the raw image and mask folders;
-2. Internet access for the initial package/model download;
-3. a GPU accelerator;
-4. optionally, an extracted previous resume bundle.
-
-The notebook clones the repository into:
-
-```text
-/kaggle/working/aereo-water-segmentation
-```
-
-Profile outputs are isolated under:
-
-```text
-/kaggle/working/aereo-water-v3-smoke
-/kaggle/working/aereo-water-v3-full
-```
-
-## Notebook choices
-
-| Notebook | Default profile | Purpose |
-|---|---|---|
-| `Aereo_Production_SegFormer_V3_Source.ipynb` | `smoke` | Cheap end-to-end validation |
-| `Aereo_Production_SegFormer_V3_Full_Run.ipynb` | `full` | Recreate complete final experiment |
-| `Aereo_Production_SegFormer_V3_EXECUTED.ipynb` | already executed | Review measured outputs without rerunning |
-
----
-
-# Smoke profile
-
-The smoke profile checks the complete path without producing scientific claims.
-
-It uses approximately:
-
-```text
-2 completed HPO trials, up to 3 attempts
-1 HPO epoch
-64 HPO training images
-32 HPO validation images
-top-1 confirmation
-1 confirmation epoch
-1 stability seed
-1 final-training epoch
-limited evaluation subset
-```
-
-## Recommended Kaggle procedure
-
-1. Open `notebooks/Aereo_Production_SegFormer_V3_Source.ipynb`.
-2. Attach the dataset.
-3. Enable GPU and Internet.
-4. Confirm:
-
-   ```python
-   RUN_PROFILE = "smoke"
-   RESET_OUTPUT_ROOT = False
-   ```
-
-5. Select **Run all**.
-6. Confirm that smoke HPO, checkpointing, tracking, inference, API tests, and export finish.
-7. Do not report smoke metrics as final performance.
-
-## Optional command-line execution
-
-Use only when the dataset is visible to the notebook in the current environment:
-
-```powershell
-jupyter nbconvert `
-  --execute `
-  --to notebook `
-  --ExecutePreprocessor.timeout=-1 `
-  .
-otebooks\Aereo_Production_SegFormer_V3_Source.ipynb `
-  --output Aereo_Production_SegFormer_V3_SMOKE_EXECUTED.ipynb
-```
-
----
-
-# Full profile
-
-The full profile recreates the final V3 experiment:
-
-```text
-12 completed Optuna trials, with up to 20 attempts
-4 HPO epochs on a fixed 1,000-image training subset
-all 429 validation images
-same-code historical baseline plus top three HPO candidates
-6 confirmation epochs
-three-seed stability: 42, 2026, 3407
-up to 15 epochs of resumable final training
-validation-only threshold calibration
-frozen 421-image held-out test evaluation
-full 2,841-image inference
-paired statistics and performance slices
-production predictor and latency benchmark
-FastAPI tests
-model/data registry and evidence exports
-```
-
-## Recommended Kaggle procedure
-
-1. First complete the smoke profile.
-2. Open `notebooks/Aereo_Production_SegFormer_V3_Full_Run.ipynb`.
-3. Attach the same raw dataset.
-4. Enable GPU and Internet.
-5. Confirm:
-
-   ```python
-   RUN_PROFILE = "full"
-   RESET_OUTPUT_ROOT = False
-   ```
-
-6. Select **Run all**.
-7. Preserve `/kaggle/working/aereo-water-v3-full`.
-8. Download the generated evidence, deployment, checksum, and resume bundles.
-
-## Optional command-line execution
-
-```powershell
-jupyter nbconvert `
-  --execute `
-  --to notebook `
-  --ExecutePreprocessor.timeout=-1 `
-  .
-otebooks\Aereo_Production_SegFormer_V3_Full_Run.ipynb `
-  --output Aereo_Production_SegFormer_V3_FULL_EXECUTED.ipynb
-```
-
-A full run can take hours and requires adequate disk. Do not launch it accidentally on a CPU-only environment.
-
----
-
-# Resume an interrupted run
-
-The stage controller loads completed artifacts and runs only missing, failed, or interrupted stages.
-
-Final training writes `last_state.pt` and preserves:
-
-- model state;
-- optimizer state;
-- scheduler state;
-- gradient-scaler state;
-- current epoch;
-- best validation IoU;
-- best epoch;
-- early-stopping counter;
-- training history;
-- Python, NumPy, PyTorch and CUDA random states.
-
-To resume on Kaggle:
-
-1. extract or attach the prior `aereo-water-v3-resume.zip`;
-2. set:
-
-   ```python
-   RESUME_ROOT_INPUT = Path(
-       "/kaggle/input/<resume-dataset>/aereo-water-v3-full"
-   )
-   ```
-
-3. keep:
-
-   ```python
-   RESET_OUTPUT_ROOT = False
-   ```
-
-4. run the notebook from the beginning.
-
-To intentionally discard all profile-specific state:
-
-```python
-RESET_OUTPUT_ROOT = True
-```
+Both should return `True` before starting inference or Docker.
 
 ---
 
 # Run direct Python inference
-
-This path loads the released checkpoint without starting an API.
 
 Create `run_v3_inference.py` in the repository root:
 
@@ -724,7 +526,8 @@ from aereo_water.inference.predictor import SegFormerPredictor
 CHECKPOINT_DIR = Path("artifacts/checkpoints/segformer_best")
 SELECTED_MODEL = Path("evidence/registry/selected_model.json")
 INPUT_IMAGE = Path("sample_satellite_image.png")
-OUTPUT_DIR = Path("local_inference")
+OUTPUT_DIR = Path("artifacts/local_inference")
+
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 device = torch.device(
@@ -767,20 +570,19 @@ print("Metadata:", metadata)
 Run:
 
 ```powershell
-python .
-un_v3_inference.py
+python .\run_v3_inference.py
 ```
 
 Expected outputs:
 
 ```text
-local_inference/
+artifacts/local_inference/
 ├── predicted_water_mask.png
 ├── predicted_water_overlay.png
 └── inference.jsonl
 ```
 
-The saved mask preserves the original image width and height and uses binary values:
+The mask preserves the original image dimensions and contains:
 
 ```text
 0   = non-water
@@ -793,41 +595,37 @@ The saved mask preserves the original image width and height and uses binary val
 
 ## Configure the service
 
-From the repository root:
-
 ```powershell
+New-Item -ItemType Directory -Force `
+  ".\artifacts\logs" | Out-Null
+
 $env:AEREO_CHECKPOINT = (
-  Resolve-Path ".rtifacts\checkpoints\segformer_best"
+    Resolve-Path ".\artifacts\checkpoints\segformer_best"
 ).Path
 
 $env:AEREO_SELECTED_MODEL = (
-  Resolve-Path ".
-egistry\selected_model.json"
+    Resolve-Path ".\evidence\registry\selected_model.json"
 ).Path
 
 $env:AEREO_DEVICE = "cpu"
 $env:AEREO_IMAGE_SIZE = "512"
 $env:AEREO_RESIZE_POLICY = "letterbox"
 $env:AEREO_LOG_PATH = (
-  Join-Path $PWD "api_inference.jsonl"
+    Join-Path $PWD "artifacts\logs\api_inference.jsonl"
 )
-```
 
-Use CUDA when available and correctly installed:
-
-```powershell
-$env:AEREO_DEVICE = "cuda"
-```
-
-Optional service hardening variables:
-
-```powershell
 $env:AEREO_MAX_UPLOAD_BYTES = "10485760"
 $env:AEREO_MAX_IMAGE_PIXELS = "40000000"
 $env:AEREO_MAX_CONCURRENCY = "1"
 ```
 
-Start Uvicorn:
+Use CUDA only when a compatible CUDA-enabled PyTorch environment is installed:
+
+```powershell
+$env:AEREO_DEVICE = "cuda"
+```
+
+## Start the API
 
 ```powershell
 python -m uvicorn `
@@ -836,7 +634,7 @@ python -m uvicorn `
   --port 8000
 ```
 
-Open the interactive documentation:
+Interactive documentation:
 
 ```text
 http://localhost:8000/docs
@@ -846,147 +644,14 @@ http://localhost:8000/docs
 
 | Endpoint | Method | Purpose |
 |---|---|---|
-| `/health` | GET | Process-level health |
-| `/ready` | GET | Model readiness |
-| `/metadata` | GET | Model version, threshold and configuration |
-| `/segment` | POST | Upload an image and receive a binary PNG mask |
+| `/health` | GET | Process liveness |
+| `/ready` | GET | Checkpoint and predictor readiness |
+| `/metadata` | GET | Model version, device, threshold, and metadata |
+| `/segment` | POST | Image upload to original-resolution binary PNG |
 
-## Health and readiness
+## Test the API
 
-```powershell
-Invoke-RestMethod http://localhost:8000/health
-Invoke-RestMethod http://localhost:8000/ready
-Invoke-RestMethod http://localhost:8000/metadata
-```
-
----
-
-# Call the API with an image
-
-## PowerShell/curl
-
-```powershell
-curl.exe `
-  -X POST `
-  "http://localhost:8000/segment" `
-  -F "image=@sample_satellite_image.png;type=image/png" `
-  --output predicted_water_mask.png
-```
-
-## Python client
-
-```python
-from pathlib import Path
-
-import requests
-
-
-image_path = Path("sample_satellite_image.png")
-
-with image_path.open("rb") as image_file:
-    response = requests.post(
-        "http://localhost:8000/segment",
-        files={
-            "image": (
-                image_path.name,
-                image_file,
-                "image/png",
-            )
-        },
-        timeout=120,
-    )
-
-response.raise_for_status()
-
-Path("predicted_water_mask.png").write_bytes(
-    response.content
-)
-
-print("Status:", response.status_code)
-print("Content-Type:", response.headers.get("content-type"))
-```
-
-## Invalid-request behavior
-
-The V3 API tests cover:
-
-- valid image returns HTTP 200 and `image/png`;
-- invalid content type returns HTTP 415;
-- missing file returns HTTP 422;
-- oversized upload returns HTTP 413.
-
-The service also checks checkpoint integrity against the selected-model registry during startup.
-
----
-
-# Build and run Docker
-
-Docker runtime validation is separate from the notebook. The repository provides:
-
-```text
-deployment/Dockerfile
-deployment/compose.yaml
-```
-
-## Prerequisites
-
-- Docker Desktop is running;
-- the checkpoint exists at `artifacts/checkpoints/segformer_best/`;
-- `evidence/registry/selected_model.json` exists;
-- port 8000 is available.
-
-Check Docker:
-
-```powershell
-docker --version
-docker info
-```
-
-## Validate Compose configuration
-
-```powershell
-docker compose `
-  -f .\deployment/compose.yaml `
-  config
-```
-
-## Build
-
-```powershell
-docker compose `
-  -f .\deployment/compose.yaml `
-  build --no-cache
-```
-
-Or build directly:
-
-```powershell
-docker build `
-  -f .\deployment/Dockerfile `
-  -t aereo-water-segformer:v3 .
-```
-
-## Start
-
-```powershell
-docker compose `
-  -f .\deployment/compose.yaml `
-  up -d
-```
-
-## Inspect
-
-```powershell
-docker compose `
-  -f .\deployment/compose.yaml `
-  ps
-
-docker compose `
-  -f .\deployment/compose.yaml `
-  logs --tail=300
-```
-
-## Test the container
+Open a second PowerShell window:
 
 ```powershell
 Invoke-RestMethod http://localhost:8000/health
@@ -1001,147 +666,313 @@ curl.exe `
   -X POST `
   "http://localhost:8000/segment" `
   -F "image=@sample_satellite_image.png;type=image/png" `
-  --output docker_predicted_water_mask.png
+  --output predicted_water_mask.png
 ```
 
-## Restart validation
+The API tests cover valid segmentation, invalid content type, missing file, and oversized upload behavior.
+
+---
+
+# Recreate the Docker image and run the container
+
+The canonical deployment files are:
+
+```text
+deployment/Dockerfile
+deployment/compose.yaml
+```
+
+The Compose path is recommended because it preserves the repository-specific build context, environment, ports, and mounts.
+
+## 1. Prerequisites
+
+Confirm:
+
+- Docker Desktop is installed and running;
+- port `8000` is free;
+- the selected checkpoint exists;
+- the selected-model registry exists.
+
+```powershell
+docker --version
+docker info
+
+Test-Path ".\artifacts\checkpoints\segformer_best"
+Test-Path ".\evidence\registry\selected_model.json"
+```
+
+The final two commands must return `True`.
+
+## 2. Validate the Compose configuration
 
 ```powershell
 docker compose `
-  -f .\deployment/compose.yaml `
+  -f .\deployment\compose.yaml `
+  config
+```
+
+This checks YAML resolution and paths. It does not build or start the service.
+
+## 3. Recreate the image from scratch
+
+Remove an old Compose service if it exists:
+
+```powershell
+docker compose `
+  -f .\deployment\compose.yaml `
+  down `
+  --remove-orphans
+```
+
+Build a fresh image without using cached layers:
+
+```powershell
+docker compose `
+  -f .\deployment\compose.yaml `
+  build `
+  --pull `
+  --no-cache
+```
+
+Equivalent direct image build:
+
+```powershell
+docker build `
+  --pull `
+  --no-cache `
+  -f .\deployment\Dockerfile `
+  -t aereo-water-segmentation:v3 `
+  .
+```
+
+Inspect the recreated image:
+
+```powershell
+docker image inspect aereo-water-segmentation:v3
+docker image ls aereo-water-segmentation:v3
+```
+
+## 4. Start the container
+
+```powershell
+docker compose `
+  -f .\deployment\compose.yaml `
+  up `
+  -d `
+  --force-recreate
+```
+
+Inspect status and startup logs:
+
+```powershell
+docker compose `
+  -f .\deployment\compose.yaml `
+  ps
+
+docker compose `
+  -f .\deployment\compose.yaml `
+  logs `
+  --tail=300
+```
+
+Do not continue until the service is running and the logs show successful model initialization.
+
+## 5. Test health, readiness, and metadata
+
+```powershell
+Invoke-RestMethod http://localhost:8000/health
+Invoke-RestMethod http://localhost:8000/ready
+Invoke-RestMethod http://localhost:8000/metadata
+```
+
+Expected behavior:
+
+- `/health` confirms process liveness;
+- `/ready` confirms that the predictor and checkpoint are loaded;
+- `/metadata` reports the registered model information and selected threshold.
+
+## 6. Test segmentation
+
+```powershell
+curl.exe `
+  -X POST `
+  "http://localhost:8000/segment" `
+  -F "image=@sample_satellite_image.png;type=image/png" `
+  --output docker_predicted_water_mask.png
+```
+
+Confirm that the output exists:
+
+```powershell
+Test-Path ".\docker_predicted_water_mask.png"
+Get-Item ".\docker_predicted_water_mask.png"
+```
+
+## 7. Test invalid input behavior
+
+```powershell
+"not an image" |
+  Set-Content ".\invalid.txt"
+
+curl.exe `
+  -i `
+  -X POST `
+  "http://localhost:8000/segment" `
+  -F "image=@invalid.txt;type=text/plain"
+```
+
+The service should reject the invalid content type rather than returning a mask.
+
+## 8. Restart and verify persistence
+
+```powershell
+docker compose `
+  -f .\deployment\compose.yaml `
   restart
 
 Invoke-RestMethod http://localhost:8000/ready
 ```
 
-Run inference again after restart.
+Run segmentation again after restart:
 
-## Stop
+```powershell
+curl.exe `
+  -X POST `
+  "http://localhost:8000/segment" `
+  -F "image=@sample_satellite_image.png;type=image/png" `
+  --output docker_predicted_water_mask_after_restart.png
+```
+
+## 9. Save Docker validation evidence
+
+```powershell
+New-Item -ItemType Directory -Force `
+  ".\docs\docker_validation" | Out-Null
+
+docker compose `
+  -f .\deployment\compose.yaml `
+  logs |
+  Set-Content `
+  ".\docs\docker_validation\container_logs.txt" `
+  -Encoding UTF8
+
+Invoke-RestMethod http://localhost:8000/health |
+  ConvertTo-Json -Depth 10 |
+  Set-Content `
+  ".\docs\docker_validation\health_response.json" `
+  -Encoding UTF8
+
+Invoke-RestMethod http://localhost:8000/ready |
+  ConvertTo-Json -Depth 10 |
+  Set-Content `
+  ".\docs\docker_validation\readiness_response.json" `
+  -Encoding UTF8
+
+Invoke-RestMethod http://localhost:8000/metadata |
+  ConvertTo-Json -Depth 10 |
+  Set-Content `
+  ".\docs\docker_validation\metadata_response.json" `
+  -Encoding UTF8
+
+Copy-Item `
+  ".\docker_predicted_water_mask.png" `
+  ".\docs\docker_validation\predicted_mask.png" `
+  -Force
+```
+
+Only after build, startup, valid request, invalid request, restart, post-restart inference, logs, and clean shutdown are preserved should external Docker runtime validation be marked complete.
+
+## 10. Stop the service
 
 ```powershell
 docker compose `
-  -f .\deployment/compose.yaml `
-  down
+  -f .\deployment\compose.yaml `
+  down `
+  --remove-orphans
 ```
 
-## Save validation evidence
+Optional cleanup of the recreated image:
 
-```text
-docs/docker_validation/
-├── docker_build.log
-├── docker_run.log
-├── container_logs.txt
-├── health_response.json
-├── readiness_response.json
-├── metadata_response.json
-├── predicted_mask.png
-└── docker_validation_summary.json
+```powershell
+docker image rm aereo-water-segmentation:v3
 ```
 
-Do not mark Docker validation complete until build, startup, valid request, invalid request, restart, post-restart inference, logs, and clean shutdown have been tested.
+Use the cleanup command only when you intentionally want the next run to rebuild the image.
 
 ---
 
-# Results and comparison
+# Reproduce the experiments
 
-## Historical experiments versus V3
+The supported full reproduction environment is Kaggle because the complete profile requires GPU compute and substantial temporary storage.
 
-| System | Inference mode | Test IoU | Dice | Boundary F1 |
-|---|---|---:|---:|---:|
-| Zero-shot SAM | Oracle-prompt benchmark | 0.566666 | 0.688989 | 0.354419 |
-| Fine-tuned SAM | Prompted | 0.603761 | 0.735317 | 0.392837 |
-| Original SegFormer | Automatic | 0.718995 | 0.819071 | 0.598512 |
-| SegFormer-SAM hybrid | Automatic two-model pipeline | 0.609329 | 0.735206 | 0.413059 |
-| **Production SegFormer V3** | **Automatic** | **0.727625** | **0.825825** | **0.655815** |
+## Notebooks
 
-## Paired comparison against historical SegFormer
+| Notebook | Profile | Purpose |
+|---|---|---|
+| `notebooks/Aereo_Production_SegFormer_V3_Source.ipynb` | Smoke | Cheap end-to-end path validation |
+| `notebooks/Aereo_Production_SegFormer_V3_Full_Run.ipynb` | Full | Complete governed experiment |
+| `notebooks/Aereo_Production_SegFormer_V3_EXECUTED.ipynb` | Executed | Review measured evidence without rerunning |
 
-| Statistic | Result |
-|---|---:|
-| Mean per-image IoU improvement | +0.008631 |
-| 95% paired-bootstrap CI | [0.002960, 0.014245] |
-| Images improved | 61.28% |
-| Images degraded | 34.92% |
-| Images unchanged | 3.80% |
-| Wilcoxon p-value | 1.14 × 10⁻⁹ |
+## Smoke profile
 
-## Performance slices
+The smoke profile checks the complete stage graph using reduced data, trials, epochs, and evaluation rows. It must not be used for final scientific claims.
 
-| Slice | Mean IoU |
-|---|---:|
-| 0–10% water coverage | 0.462659 |
-| 10–25% | 0.699341 |
-| 25–50% | 0.752054 |
-| 50–75% | 0.786368 |
-| 75–100% | 0.862322 |
-| Low boundary complexity | 0.874093 |
-| Medium boundary complexity | 0.758354 |
-| High boundary complexity | 0.550209 |
+```python
+RUN_PROFILE = "smoke"
+RESET_OUTPUT_ROOT = False
+```
 
-## Figures
+## Full profile
 
-### Dataset exploration
+The full profile performs:
 
-![Dataset EDA](reports/figures/dataset_eda.png)
+- 12 completed Optuna trials, with up to 20 attempts;
+- four HPO epochs on a fixed 1,000-image training subset;
+- evaluation on all 429 validation images;
+- historical same-code baseline and top-three confirmation;
+- three-seed stability using 42, 2026, and 3407;
+- up to 15 final-training epochs;
+- validation-only threshold calibration;
+- frozen 421-image held-out evaluation;
+- full 2,841-image inference;
+- paired statistics and performance slices;
+- FastAPI validation and release export.
 
-### Preprocessing and augmentation
+```python
+RUN_PROFILE = "full"
+RESET_OUTPUT_ROOT = False
+```
 
-![Preprocessing and augmentation](reports/figures/preprocessing_and_augmentation.png)
+## Resume
 
-### Tiling and reconstruction
+The stage controller loads valid completion artifacts and runs only missing, failed, or interrupted stages. Final training preserves model, optimizer, scheduler, scaler, epoch, best score, early-stopping state, history, and random states.
 
-![Tiling reconstruction](reports/figures/tiling_reconstruction.png)
+For detailed instructions, use:
 
-### Qualitative successes and failures
-
-![Qualitative analysis](reports/figures/qualitative_success_failure_analysis.png)
-
-### Production inference
-
-![Production inference](reports/figures/production_inference_evidence.png)
+- [Execution runbook](docs/SEGFORMER_V3_RUNBOOK.md)
+- [System architecture](docs/architecture.md)
 
 ---
 
-# Latency and resource results
-
-## Model-forward latency
-
-```text
-Warm-up runs: 5
-Timed runs: 50
-P50: 12.05 ms
-P95: 20.81 ms
-Mean: 13.53 ms
-Throughput: 73.92 images/s
-Peak inference GPU memory: 283.62 MB
-```
-
-## End-to-end latency
-
-```text
-Cold start: 143.89 ms
-P50: 31.91 ms
-P95: 39.53 ms
-Mean: 33.34 ms
-```
-
-Evidence:
-
-```text
-evidence/inference/end_to_end_latency.csv
-evidence/inference/latency_summary.json
-evidence/inference/inference.jsonl
-```
-
----
-
-# Experiment tracking and registries
+# Evidence, tracking, and registries
 
 ## MLflow
 
-MLflow is the system of record. It stores HPO, confirmation, stability, final-training and evaluation runs.
+MLflow is the authoritative experiment system of record. The full run tracks:
 
-The complete Kaggle output preserves:
+- Optuna trials;
+- historical and candidate confirmation;
+- seed stability;
+- final training;
+- calibration;
+- evaluation;
+- checkpoints;
+- parameters;
+- metrics;
+- figures;
+- per-image result tables.
+
+The complete external run preserves:
 
 ```text
 tracking/mlflow.db
@@ -1150,31 +981,37 @@ tracking/mlartifacts/
 
 ## W&B
 
-W&B is an optional visualization mirror. The executed full run used offline mode under:
+W&B is retained as an optional offline visualization mirror and is not the authoritative tracker.
+
+## Evidence directories
 
 ```text
-tracking/wandb/
+evidence/acceptance/
+evidence/api/
+evidence/calibration/
+evidence/environment/
+evidence/evaluation/
+evidence/inference/
+evidence/registry/
+evidence/results/
+evidence/run_state/
+evidence/slices/
+evidence/statistics/
 ```
 
-No W&B account is required for offline reproduction.
-
-## Data registry
+## Figures
 
 ```text
-evidence/registry/data_registry.json
-evidence/registry/validated_manifest.csv
-evidence/registry/runtime_manifest.csv
-evidence/registry/split_registry.csv
+reports/figures/dataset_eda.png
+reports/figures/preprocessing_and_augmentation.png
+reports/figures/tiling_reconstruction.png
+reports/figures/historical_model_comparison.png
+reports/figures/threshold_calibration.png
+reports/figures/paired_iou_comparison.png
+reports/figures/performance_slices.png
+reports/figures/qualitative_success_failure_analysis.png
+reports/figures/production_inference_evidence.png
 ```
-
-## Model registry
-
-```text
-evidence/registry/selected_model.json
-evidence/registry/model_registry.csv
-```
-
-The selected-model record stores the checkpoint hash, threshold, preprocessing, parameters, metrics, latency, Git commit, HPO fingerprint and deployment status.
 
 ---
 
@@ -1186,79 +1023,70 @@ Canonical workflow:
 .github/workflows/ci.yml
 ```
 
-For pushes and pull requests to `main`, CI:
+CI performs:
 
-1. installs Python 3.11;
-2. installs CPU PyTorch;
-3. installs production and CI dependencies;
-4. installs the repository editable;
-5. verifies critical imports;
-6. compiles source and scripts;
-7. runs `pytest`.
+1. Python 3.11 setup;
+2. CPU PyTorch installation;
+3. dependency installation;
+4. editable package installation;
+5. critical import checks;
+6. source and script compilation;
+7. repository tests.
 
-Local commands:
+Local validation:
 
 ```powershell
 python -m compileall -q src scripts
 python -m pytest -q
+python -m pip check
 ```
 
-The final executed evidence recorded 43 passing tests. The current GitHub Actions run is the source of truth for the latest commit.
-
----
-
-# Release assets and integrity
-
-Release:
-
-**[v3.0.0 — Aereo Water Segmentation V3](https://github.com/Mshrooom/Aereo-WaterSeg-DSintern-Assignment/releases/tag/v3.0.0)**
-
-Assets:
+Expected executed evidence:
 
 ```text
-aereo-water-v3-github-evidence.zip
-aereo-water-segformer-v3-deployment.zip
-AEREO_V3_SHA256SUMS.txt
+43 passed
 ```
-
-The large resume/recovery bundle may be retained separately because it contains intermediate state and is not required for review, inference or deployment.
-
-Verify a download:
-
-```powershell
-Get-FileHash `
-  .ereo-water-segformer-v3-deployment.zip `
-  -Algorithm SHA256
-
-Get-Content .\AEREO_V3_SHA256SUMS.txt
-```
-
-The deployment artifact was also reloaded in a clean directory during notebook execution; prediction-mask parity and checkpoint-hash parity passed.
 
 ---
 
-# Known limitations
+# Limitations and future work
 
-1. **RGB only.** NIR and SWIR bands are unavailable.
-2. **Geographic generalization is not established.** Region and time metadata are incomplete.
-3. **No empty-mask examples in the held-out test set.** All 421 test masks contain water, so empty-scene false-positive rate is `NOT_APPLICABLE`, not zero.
-4. **Reference-label quality.** Some masks may reflect automated or index-assisted processing.
-5. **Historical and V3 latency scopes differ.**
-6. **Docker validation is external to the Kaggle notebook.**
-7. **The API does not yet include production authentication, rate limiting or distributed serving.**
-8. **No ONNX, TensorRT or quantized export is included yet.**
-9. **Latency will vary by hardware and concurrency.**
+## Known limitations
 
----
+1. **RGB-only sensing:** NIR, SWIR, SAR, and temporal evidence are unavailable.
+2. **Geographic generalization:** Cross-country, cross-sensor, and cross-season performance is not established.
+3. **No empty test masks:** Empty-scene robustness cannot be measured from the current held-out split.
+4. **Reference-label quality:** Some labels may contain automated or index-assisted uncertainty.
+5. **Variable source dimensions:** Global metrics and raw-pixel boundary distances are size-dependent.
+6. **Historical latency scope:** Historical stage-level latency is not directly comparable with V3 end-to-end latency.
+7. **Docker runtime evidence:** Packaging is provided, but validation remains pending until the external lifecycle is executed.
+8. **Serving hardening:** Authentication, rate limiting, distributed serving, and sustained load tests are not included.
+9. **Optimized export:** ONNX, TensorRT, FP16, and INT8 deployment benchmarks are future work.
 
-# Recommended next improvements
+## Prioritized next work
 
 - add NIR and SWIR bands;
-- evaluate geographic and temporal OOD splits;
-- add manually verified dry-land negative controls;
-- export ONNX and benchmark ONNX Runtime;
-- add cloud, haze and seasonal corruption tests;
-- use metre-based boundary metrics when georeferencing is valid;
+- evaluate SAR-optical fusion for cloud robustness;
+- create geographic and seasonal OOD splits;
+- add manually verified dry-scene negative controls;
+- use boundary-aware and topology-aware objectives;
+- assess uncertainty and probability calibration;
+- benchmark optimized exports;
+- complete sustained load and concurrency testing.
+
+---
+
+# Documentation
+
+- [Execution and repository runbook](docs/SEGFORMER_V3_RUNBOOK.md)
+- [System architecture](docs/architecture.md)
+- [Repository layout](docs/repository_layout.md)
+- [Dataset card](docs/dataset_card.md)
+- [Model card](docs/model_card.md)
+- [Release notes](docs/release_notes_v3.md)
+- [Evidence directory guide](evidence/README.md)
+- [Legacy directory guide](legacy/README.md)
+- [Reports directory guide](reports/README.md)
 
 ---
 
@@ -1266,4 +1094,4 @@ The deployment artifact was also reloaded in a clean directory during notebook e
 
 Developed for the Aereo Data Scientist Intern water-body segmentation assignment.
 
-The repository preserves production code, measured evidence, model and dataset cards, executed notebook, release artifacts and CI history so reported claims can be traced to source code and generated artifacts.
+The repository preserves maintained source code, historical experiments, measured evidence, model and data registries, an executed notebook, release artifacts, and CI history so that reported claims can be traced back to reproducible code and generated artifacts.
