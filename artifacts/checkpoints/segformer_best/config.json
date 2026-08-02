@@ -1,5 +1,4 @@
 {
-  "_name_or_path": "nvidia/segformer-b0-finetuned-ade-512-512",
   "architectures": [
     "SegformerForSemanticSegmentation"
   ],
@@ -19,6 +18,7 @@
     16
   ],
   "drop_path_rate": 0.1,
+  "dtype": "float32",
   "hidden_act": "gelu",
   "hidden_dropout_prob": 0.0,
   "hidden_sizes": [
@@ -28,13 +28,13 @@
     256
   ],
   "id2label": {
-    "0": "background",
+    "0": "non_water",
     "1": "water"
   },
   "image_size": 224,
   "initializer_range": 0.02,
   "label2id": {
-    "background": 0,
+    "non_water": 0,
     "water": 1
   },
   "layer_norm_eps": 1e-06,
@@ -73,6 +73,5 @@
     2,
     2
   ],
-  "torch_dtype": "float32",
-  "transformers_version": "4.37.2"
+  "transformers_version": "4.57.6"
 }
