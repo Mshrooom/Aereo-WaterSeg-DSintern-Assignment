@@ -9,3 +9,5 @@ fastapi>=0.110,<1
 uvicorn[standard]>=0.29,<1
 python-multipart>=0.0.9,<1
 safetensors>=0.4,<1
+Pillow>=10,<12
+Pillow>=10,<12
