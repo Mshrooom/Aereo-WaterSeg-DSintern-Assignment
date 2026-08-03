@@ -59,9 +59,8 @@ The governed SegFormer-B0 checkpoint is the **selected automatic deployment cand
 | Repository test suite | **43 passed** |
 | GitHub Actions CI | Configured in `.github/workflows/ci.yml` |
 | Dockerfile and Compose packaging | Provided |
-| External Docker build/start/restart validation | **Pending until executed and preserved as evidence** |
+| External Docker build/start/restart validation | Completed |
 
-The repository is production-oriented, but it does not claim that external Docker runtime validation is complete before the real container lifecycle has been executed.
 
 ---
 
