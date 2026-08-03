@@ -33,7 +33,7 @@ The governed SegFormer-B0 checkpoint is the **selected automatic deployment cand
 8. [Obtain the model artifact](#obtain-the-model-artifact)
 9. [Run direct Python inference](#run-direct-python-inference)
 10. [Run the FastAPI service](#run-the-fastapi-service)
-11. [Recreate the Docker image and run the container](#recreate-the-docker-image-and-run-the-container)
+11. [Recreate the Docker image and run the container](#Docker-Deployment)
 12. [Reproduce the experiments](#reproduce-the-experiments)
 13. [Evidence, tracking, and registries](#evidence-tracking-and-registries)
 14. [Tests and continuous integration](#tests-and-continuous-integration)
@@ -676,120 +676,133 @@ The API tests cover valid segmentation, invalid content type, missing file, and 
 
 ---
 
-# Recreate the Docker image and run the container
+## Docker Deployment
 
-The canonical deployment files are:
+The Aereo Water Segmentation service is deployed as a FastAPI application containing the validated SegFormer V3 water-segmentation model.
+
+The service supports two deployment methods:
+
+1. Pull the complete, self-contained image from Docker Hub.
+2. Build and run the image locally using Docker Compose.
+
+### Validated production configuration
+
+| Item | Value |
+|---|---|
+| Local Docker image | `aereo-water-segmentation:v3` |
+| Docker Hub image | `YOUR_DOCKERHUB_USERNAME/aereo-water-segmentation:v3.0.0` |
+| API port | `8000` |
+| Production checkpoint | `artifacts/checkpoints/segformer_best` |
+| Selected-model registry | `evidence/registry/selected_model.json` |
+| Validation image | `evidence/inference/water_body_2496.jpg` |
+| Selected threshold | `0.45` |
+| Checkpoint SHA-256 | `dc0af932cfbcb2f3ea9cfa0e18e0f8438636027de2579d534412f7472b4521a4` |
+
+The production Docker image contains:
+
+- the FastAPI application;
+- production Python dependencies;
+- the validated SegFormer V3 checkpoint;
+- the SegFormer processor configuration;
+- the calibrated segmentation threshold;
+- the selected-model registry;
+- a writable inference-log directory.
+
+---
+
+## Deployment files
+
+The canonical Docker deployment files are:
 
 ```text
 deployment/Dockerfile
 deployment/compose.yaml
+.dockerignore
 ```
 
-The Compose path is recommended because it preserves the repository-specific build context, environment, ports, and mounts.
+The repository checkpoint bundle is:
 
-## 1. Prerequisites
+```text
+artifacts/
+└── checkpoints/
+    └── segformer_best/
+        ├── config.json
+        ├── model.safetensors
+        ├── preprocessor_config.json
+        └── selected_threshold.json
+```
 
-Confirm:
+The selected-model registry is:
 
-- Docker Desktop is installed and running;
-- port `8000` is free;
-- the selected checkpoint exists;
-- the selected-model registry exists.
+```text
+evidence/
+└── registry/
+    └── selected_model.json
+```
+
+---
+
+# Option A — Run the published Docker Hub image
+
+This is the recommended approach for reviewers because it does not require rebuilding the image or installing Python dependencies locally.
+
+Replace `YOUR_DOCKERHUB_USERNAME` with the actual Docker Hub username.
+
+## 1. Pull the versioned image
 
 ```powershell
-docker --version
-docker info
-
-Test-Path ".\artifacts\checkpoints\segformer_best"
-Test-Path ".\evidence\registry\selected_model.json"
+docker pull YOUR_DOCKERHUB_USERNAME/aereo-water-segmentation:v3.0.0
 ```
 
-The final two commands must return `True`.
+Use the versioned `v3.0.0` tag for reproducibility.
 
-## 2. Validate the Compose configuration
+The `latest` tag may also be available:
 
 ```powershell
-docker compose `
-  -f .\deployment\compose.yaml `
-  config
+docker pull YOUR_DOCKERHUB_USERNAME/aereo-water-segmentation:latest
 ```
 
-This checks YAML resolution and paths. It does not build or start the service.
+However, `latest` may change in future releases.
 
-If not working restart the powershell and then:
-
-```poweshell
-docker desktop start
-```
-```powershell
-docker context ls
-```
-
-## 3. Recreate the image from scratch
-
-Remove an old Compose service if it exists:
+## 2. Start the container
 
 ```powershell
-docker compose `
-  -f .\deployment\compose.yaml `
-  down `
-  --remove-orphans
-```
-
-Build a fresh image without using cached layers:
-
-```powershell
-docker compose `
-  -f .\deployment\compose.yaml `
-  build `
-  --pull `
-  --no-cache
-```
-
-Equivalent direct image build:
-
-```powershell
-docker build `
-  --pull `
-  --no-cache `
-  -f .\deployment\Dockerfile `
-  -t aereo-water-segmentation:v3 `
-  .
-```
-
-Inspect the recreated image:
-
-```powershell
-docker image inspect aereo-water-segmentation:v3
-docker image ls aereo-water-segmentation:v3
-```
-
-## 4. Start the container
-
-```powershell
-docker compose `
-  -f .\deployment\compose.yaml `
-  up `
+docker run `
   -d `
-  --force-recreate
+  --name aereo-water-segmentation `
+  -p 8000:8000 `
+  -e AEREO_CHECKPOINT=/app/artifacts/checkpoints/segformer_best `
+  -e AEREO_SELECTED_MODEL=/app/evidence/registry/selected_model.json `
+  -e AEREO_LOG_PATH=/app/artifacts/logs/inference.jsonl `
+  -e AEREO_DEVICE=cpu `
+  -e AEREO_IMAGE_SIZE=512 `
+  -e AEREO_RESIZE_POLICY=letterbox `
+  -e AEREO_MAX_UPLOAD_BYTES=20971520 `
+  -e AEREO_MAX_IMAGE_PIXELS=100000000 `
+  -e AEREO_MAX_CONCURRENCY=1 `
+  YOUR_DOCKERHUB_USERNAME/aereo-water-segmentation:v3.0.0
 ```
 
-Inspect status and startup logs:
+Docker returns a hexadecimal container ID when the container starts.
+
+## 3. Inspect the container
 
 ```powershell
-docker compose `
-  -f .\deployment\compose.yaml `
-  ps
-
-docker compose `
-  -f .\deployment\compose.yaml `
-  logs `
-  --tail=300
+docker ps `
+  --filter "name=aereo-water-segmentation"
 ```
 
-Do not continue until the service is running and the logs show successful model initialization.
+Inspect startup logs:
 
-## 5. Test health, readiness, and metadata
+```powershell
+docker logs `
+  aereo-water-segmentation `
+  --tail 200
+```
+
+Do not continue until the container is running and the logs show that the FastAPI application has started.
+
+## 4. Test the API
 
 ```powershell
 Invoke-RestMethod http://localhost:8000/health
@@ -799,33 +812,665 @@ Invoke-RestMethod http://localhost:8000/metadata
 
 Expected behavior:
 
-- `/health` confirms process liveness;
-- `/ready` confirms that the predictor and checkpoint are loaded;
-- `/metadata` reports the registered model information and selected threshold.
+- `/health` confirms API-process liveness;
+- `/ready` confirms that the model, processor, threshold, and registry loaded successfully;
+- `/metadata` returns the selected production-model information.
 
-## 6. Test segmentation
+A successful `/health` response does not by itself prove that the model loaded. `/ready` must also succeed.
+
+## 5. Stop the Docker Hub container
+
+```powershell
+docker rm -f aereo-water-segmentation
+```
+
+---
+
+# Option B — Build and run from the repository
+
+Run the following commands from the repository root.
+
+```powershell
+cd <path-to-aereo-water-segmentation>
+```
+
+For example:
+
+```powershell
+cd D:\aereotasksubmission_maanvibansal\Source\aereo-water-segmentation
+```
+
+---
+
+## 1. Prerequisites
+
+Confirm that:
+
+- Docker Desktop is installed;
+- Docker Desktop is running;
+- Docker is using Linux containers;
+- Docker Compose is available;
+- port `8000` is free;
+- the production checkpoint exists;
+- the selected-model registry exists;
+- the checkpoint bundle is complete.
+
+Check Docker:
+
+```powershell
+docker --version
+docker compose version
+docker info
+```
+
+`docker info` must display both client and server information.
+
+### Check required project files
+
+```powershell
+$requiredFiles = @(
+  ".\deployment\Dockerfile",
+  ".\deployment\compose.yaml",
+  ".\artifacts\checkpoints\segformer_best\config.json",
+  ".\artifacts\checkpoints\segformer_best\model.safetensors",
+  ".\artifacts\checkpoints\segformer_best\preprocessor_config.json",
+  ".\artifacts\checkpoints\segformer_best\selected_threshold.json",
+  ".\evidence\registry\selected_model.json"
+)
+
+$missingFiles = $requiredFiles |
+  Where-Object { -not (Test-Path $_) }
+
+if ($missingFiles) {
+  Write-Host "Missing required Docker deployment files:"
+  $missingFiles
+  throw "The production deployment bundle is incomplete."
+}
+
+Write-Host "All required Docker deployment files are present."
+```
+
+Create the writable inference-log directory:
+
+```powershell
+New-Item `
+  -ItemType Directory `
+  -Force `
+  -Path ".\artifacts\logs" |
+Out-Null
+```
+
+---
+
+## 2. Docker Desktop troubleshooting
+
+When Docker cannot connect to its daemon:
+
+```powershell
+docker desktop start
+docker context ls
+docker context use desktop-linux
+docker info
+```
+
+When Docker Desktop is open but Docker remains unavailable, restart Docker Desktop from the application.
+
+WSL may also be restarted with:
+
+```powershell
+wsl --shutdown
+```
+
+Then reopen Docker Desktop and run:
+
+```powershell
+docker info
+```
+
+Opening a fresh PowerShell window can also clear stale Docker-context or environment state.
+
+Do not continue until `docker info` displays server information.
+
+---
+
+## 3. Check whether port 8000 is already occupied
+
+```powershell
+Get-NetTCPConnection `
+  -LocalPort 8000 `
+  -ErrorAction SilentlyContinue
+```
+
+Inspect Docker port mappings:
+
+```powershell
+docker ps `
+  --format "table {{.Names}}\t{{.Ports}}"
+```
+
+When another Docker container is using port `8000`, stop it:
+
+```powershell
+docker rm -f <container-name>
+```
+
+Alternatively, use a different host port:
+
+```powershell
+docker run `
+  -d `
+  --name aereo-water-segmentation-test `
+  -p 8001:8000 `
+  aereo-water-segmentation:v3
+```
+
+The API would then be available at:
+
+```text
+http://localhost:8001
+```
+
+---
+
+## 4. Verify the host checkpoint
+
+The checkpoint file must exist:
+
+```powershell
+Test-Path `
+  ".\artifacts\checkpoints\segformer_best\model.safetensors"
+```
+
+Expected:
+
+```text
+True
+```
+
+Read the selected-model registry:
+
+```powershell
+$registry = Get-Content `
+  ".\evidence\registry\selected_model.json" `
+  -Raw |
+ConvertFrom-Json
+```
+
+Compare the registered checkpoint hash with the actual checkpoint hash:
+
+```powershell
+$expectedHash = $registry.checkpoint_sha256.ToLower()
+
+$actualHash = (
+  Get-FileHash `
+    ".\artifacts\checkpoints\segformer_best\model.safetensors" `
+    -Algorithm SHA256
+).Hash.ToLower()
+
+Write-Host "Expected checkpoint hash:" $expectedHash
+Write-Host "Actual checkpoint hash:  " $actualHash
+
+if ($expectedHash -ne $actualHash) {
+  throw "Checkpoint integrity validation failed."
+}
+
+Write-Host "Checkpoint integrity validation passed."
+```
+
+Expected SHA-256:
+
+```text
+dc0af932cfbcb2f3ea9cfa0e18e0f8438636027de2579d534412f7472b4521a4
+```
+
+Verify the selected threshold:
+
+```powershell
+if ($null -eq $registry.validation_threshold) {
+  throw "selected_model.json does not contain validation_threshold."
+}
+
+Write-Host "Validation threshold:" $registry.validation_threshold
+```
+
+Expected:
+
+```text
+0.45
+```
+
+Do not disable checkpoint-integrity validation.
+
+Do not change the registry hash merely to accept a different checkpoint.
+
+---
+
+## 5. Validate the Docker Compose configuration
+
+```powershell
+docker compose `
+  -f ".\deployment\compose.yaml" `
+  config
+```
+
+This command:
+
+- validates the YAML structure;
+- resolves environment variables;
+- resolves volume paths;
+- displays the final Compose configuration.
+
+It does not build or start the service.
+
+### Required Compose paths
+
+Because `compose.yaml` is inside the `deployment` directory, repository-root mounts must use `../`.
+
+The required volume configuration is:
+
+```yaml
+volumes:
+  - ../artifacts/checkpoints:/app/artifacts/checkpoints:ro
+  - ../evidence/registry:/app/evidence/registry:ro
+  - ../artifacts/logs:/app/artifacts/logs
+```
+
+Do not use:
+
+```yaml
+- ./artifacts/checkpoints:/app/artifacts/checkpoints:ro
+```
+
+That incorrect path resolves to:
+
+```text
+deployment/artifacts/checkpoints
+```
+
+instead of:
+
+```text
+artifacts/checkpoints
+```
+
+---
+
+## 6. Remove old containers
+
+Remove a previous Compose deployment:
+
+```powershell
+docker compose `
+  -f ".\deployment\compose.yaml" `
+  down `
+  --remove-orphans
+```
+
+Remove any standalone test containers:
+
+```powershell
+docker rm -f aereo-water-segmentation 2>$null
+docker rm -f aereo-standalone-test 2>$null
+```
+
+---
+
+## 7. Determine whether the image must be rebuilt
+
+Rebuild the Docker image after changing:
+
+- `deployment/Dockerfile`;
+- `.dockerignore`;
+- `requirements/production.in`;
+- `pyproject.toml`;
+- application code under `src/`;
+- the checkpoint embedded in the standalone image;
+- the selected-model registry embedded in the image;
+- system packages;
+- Python dependencies.
+
+A full image rebuild is generally unnecessary after changing only:
+
+- mounted checkpoint files;
+- mounted registry files;
+- Compose environment variables;
+- Compose volume paths;
+- log files.
+
+For mounted-file or Compose-only changes, recreate the container:
+
+```powershell
+docker compose `
+  -f ".\deployment\compose.yaml" `
+  down `
+  --remove-orphans
+
+docker compose `
+  -f ".\deployment\compose.yaml" `
+  up `
+  -d `
+  --force-recreate
+```
+
+---
+
+## 8. Build the image from scratch
+
+Build through Docker Compose:
+
+```powershell
+docker compose `
+  -f ".\deployment\compose.yaml" `
+  build `
+  --pull `
+  --no-cache
+```
+
+Equivalent direct Docker build:
+
+```powershell
+docker build `
+  --pull `
+  --no-cache `
+  -f ".\deployment\Dockerfile" `
+  -t aereo-water-segmentation:v3 `
+  .
+```
+
+A clean build can take several minutes because production dependencies are downloaded and installed.
+
+Inspect the resulting image:
+
+```powershell
+docker image inspect aereo-water-segmentation:v3
+docker image ls aereo-water-segmentation:v3
+```
+
+---
+
+## 9. Verify that the image is self-contained
+
+The image published to Docker Hub must contain the production checkpoint and registry without relying on host volume mounts.
+
+Verify the embedded checkpoint:
+
+```powershell
+docker run `
+  --rm `
+  --entrypoint sha256sum `
+  aereo-water-segmentation:v3 `
+  /app/artifacts/checkpoints/segformer_best/model.safetensors
+```
+
+Expected:
+
+```text
+dc0af932cfbcb2f3ea9cfa0e18e0f8438636027de2579d534412f7472b4521a4
+```
+
+Verify the embedded registry:
+
+```powershell
+docker run `
+  --rm `
+  --entrypoint python `
+  aereo-water-segmentation:v3 `
+  -c "import json; d=json.load(open('/app/evidence/registry/selected_model.json')); print('hash:', d['checkpoint_sha256']); print('threshold:', d['validation_threshold'])"
+```
+
+Expected:
+
+```text
+hash: dc0af932cfbcb2f3ea9cfa0e18e0f8438636027de2579d534412f7472b4521a4
+threshold: 0.45
+```
+
+List the files embedded in the image:
+
+```powershell
+docker run `
+  --rm `
+  --entrypoint sh `
+  aereo-water-segmentation:v3 `
+  -c "ls -lah /app/artifacts/checkpoints/segformer_best && echo '--- registry ---' && ls -lah /app/evidence/registry/selected_model.json"
+```
+
+Expected checkpoint files:
+
+```text
+config.json
+model.safetensors
+preprocessor_config.json
+selected_threshold.json
+```
+
+---
+
+## 10. Start the Compose service
+
+```powershell
+docker compose `
+  -f ".\deployment\compose.yaml" `
+  up `
+  -d `
+  --force-recreate
+```
+
+Inspect the service:
+
+```powershell
+docker compose `
+  -f ".\deployment\compose.yaml" `
+  ps
+```
+
+Inspect startup logs:
+
+```powershell
+docker compose `
+  -f ".\deployment\compose.yaml" `
+  logs `
+  --tail=300
+```
+
+Do not continue until the service is running and the logs show successful application initialization.
+
+---
+
+## 11. Verify the mounted checkpoint inside the container
+
+List the mounted checkpoint files:
+
+```powershell
+docker compose `
+  -f ".\deployment\compose.yaml" `
+  exec water-segmentation-v3 `
+  ls -lah /app/artifacts/checkpoints/segformer_best
+```
+
+Verify the mounted model hash:
+
+```powershell
+docker compose `
+  -f ".\deployment\compose.yaml" `
+  exec water-segmentation-v3 `
+  sha256sum /app/artifacts/checkpoints/segformer_best/model.safetensors
+```
+
+Expected:
+
+```text
+dc0af932cfbcb2f3ea9cfa0e18e0f8438636027de2579d534412f7472b4521a4
+```
+
+Verify the mounted registry:
+
+```powershell
+docker compose `
+  -f ".\deployment\compose.yaml" `
+  exec water-segmentation-v3 `
+  python -c "import json; d=json.load(open('/app/evidence/registry/selected_model.json')); print('hash:', d.get('checkpoint_sha256')); print('threshold:', d.get('validation_threshold'))"
+```
+
+Expected:
+
+```text
+hash: dc0af932cfbcb2f3ea9cfa0e18e0f8438636027de2579d534412f7472b4521a4
+threshold: 0.45
+```
+
+---
+
+# API validation
+
+## 1. Test health, readiness, and metadata
+
+```powershell
+Invoke-RestMethod http://localhost:8000/health
+Invoke-RestMethod http://localhost:8000/ready
+Invoke-RestMethod http://localhost:8000/metadata
+```
+
+Expected behavior:
+
+### `/health`
+
+Confirms that the API process is alive.
+
+### `/ready`
+
+Confirms that:
+
+- the model checkpoint loaded;
+- the processor loaded;
+- the selected threshold loaded;
+- the checkpoint passed integrity validation;
+- the predictor is ready for inference.
+
+### `/metadata`
+
+Returns information about:
+
+- the selected model;
+- checkpoint identity;
+- validation threshold;
+- model version;
+- registered performance values.
+
+Do not run inference until `/ready` succeeds.
+
+---
+
+## 2. Test segmentation
+
+Confirm that the repository validation image exists:
+
+```powershell
+Test-Path ".\evidence\inference\water_body_2496.jpg"
+```
+
+Expected:
+
+```text
+True
+```
+
+Submit the image:
 
 ```powershell
 curl.exe `
   -X POST `
   "http://localhost:8000/segment" `
-  -F "image=@sample_satellite_image.png;type=image/png" `
+  -F "image=@evidence/inference/water_body_2496.jpg;type=image/jpeg" `
   --output docker_predicted_water_mask.png
 ```
 
-Confirm that the output exists:
+Confirm that the response exists:
 
 ```powershell
 Test-Path ".\docker_predicted_water_mask.png"
 Get-Item ".\docker_predicted_water_mask.png"
 ```
 
-## 7. Test invalid input behavior
+Do not use:
+
+```text
+sample_satellite_image.png
+```
+
+That file is not included in the repository.
+
+---
+
+## 3. Verify that the response is a PNG
+
+Use `Resolve-Path` so the absolute path is passed to .NET:
+
+```powershell
+$outputPath = (
+  Resolve-Path ".\docker_predicted_water_mask.png"
+).Path
+
+$bytes = [System.IO.File]::ReadAllBytes($outputPath)
+
+$signature = (
+  $bytes[0..7] |
+  ForEach-Object { $_.ToString("X2") }
+) -join " "
+
+Write-Host "Output file:" $outputPath
+Write-Host "PNG signature:" $signature
+
+if ($signature -ne "89 50 4E 47 0D 0A 1A 0A") {
+  throw "The API response is not a valid PNG file."
+}
+
+Write-Host "Valid PNG prediction received."
+```
+
+Expected PNG signature:
+
+```text
+89 50 4E 47 0D 0A 1A 0A
+```
+
+Open the prediction:
+
+```powershell
+Start-Process ".\docker_predicted_water_mask.png"
+```
+
+Confirm that the request returned HTTP `200`:
+
+```powershell
+docker compose `
+  -f ".\deployment\compose.yaml" `
+  logs `
+  --tail=100
+```
+
+Look for a successful request similar to:
+
+```text
+POST /segment HTTP/1.1" 200 OK
+```
+
+---
+
+## 4. Test invalid input
+
+Create an invalid text file:
 
 ```powershell
 "not an image" |
-  Set-Content ".\invalid.txt"
+  Set-Content `
+  ".\invalid.txt" `
+  -Encoding ASCII
+```
 
+Submit it:
+
+```powershell
 curl.exe `
   -i `
   -X POST `
@@ -833,83 +1478,713 @@ curl.exe `
   -F "image=@invalid.txt;type=text/plain"
 ```
 
-The service should reject the invalid content type rather than returning a mask.
+Expected response:
 
-## 8. Restart and verify persistence
+```text
+HTTP 415 Unsupported Media Type
+```
+
+The service must reject invalid input instead of returning a segmentation mask.
+
+---
+
+## 5. Restart and verify persistence
+
+Restart the service:
 
 ```powershell
 docker compose `
-  -f .\deployment\compose.yaml `
+  -f ".\deployment\compose.yaml" `
   restart
+```
 
+Wait briefly:
+
+```powershell
+Start-Sleep -Seconds 5
+```
+
+Test readiness again:
+
+```powershell
 Invoke-RestMethod http://localhost:8000/ready
 ```
 
-Run segmentation again after restart:
+Run segmentation after restart:
 
 ```powershell
 curl.exe `
   -X POST `
   "http://localhost:8000/segment" `
-  -F "image=@sample_satellite_image.png;type=image/png" `
+  -F "image=@evidence/inference/water_body_2496.jpg;type=image/jpeg" `
   --output docker_predicted_water_mask_after_restart.png
 ```
 
-## 9. Save Docker validation evidence
+Verify the response:
 
 ```powershell
-New-Item -ItemType Directory -Force `
-  ".\docs\docker_validation" | Out-Null
+Test-Path ".\docker_predicted_water_mask_after_restart.png"
 
+$outputPath = (
+  Resolve-Path ".\docker_predicted_water_mask_after_restart.png"
+).Path
+
+$bytes = [System.IO.File]::ReadAllBytes($outputPath)
+
+($bytes[0..7] |
+  ForEach-Object { $_.ToString("X2") }) -join " "
+```
+
+Expected:
+
+```text
+89 50 4E 47 0D 0A 1A 0A
+```
+
+---
+
+# Save Docker validation evidence
+
+Create the validation-evidence directory:
+
+```powershell
+New-Item `
+  -ItemType Directory `
+  -Force `
+  ".\docs\docker_validation" |
+Out-Null
+```
+
+## Save container status
+
+```powershell
 docker compose `
-  -f .\deployment\compose.yaml `
+  -f ".\deployment\compose.yaml" `
+  ps |
+Set-Content `
+  ".\docs\docker_validation\container_status.txt" `
+  -Encoding UTF8
+```
+
+## Save container logs
+
+```powershell
+docker compose `
+  -f ".\deployment\compose.yaml" `
   logs |
-  Set-Content `
+Set-Content `
   ".\docs\docker_validation\container_logs.txt" `
   -Encoding UTF8
+```
 
+## Save API responses
+
+```powershell
 Invoke-RestMethod http://localhost:8000/health |
   ConvertTo-Json -Depth 10 |
   Set-Content `
-  ".\docs\docker_validation\health_response.json" `
-  -Encoding UTF8
+    ".\docs\docker_validation\health_response.json" `
+    -Encoding UTF8
 
 Invoke-RestMethod http://localhost:8000/ready |
   ConvertTo-Json -Depth 10 |
   Set-Content `
-  ".\docs\docker_validation\readiness_response.json" `
-  -Encoding UTF8
+    ".\docs\docker_validation\readiness_response.json" `
+    -Encoding UTF8
 
 Invoke-RestMethod http://localhost:8000/metadata |
   ConvertTo-Json -Depth 10 |
   Set-Content `
-  ".\docs\docker_validation\metadata_response.json" `
-  -Encoding UTF8
+    ".\docs\docker_validation\metadata_response.json" `
+    -Encoding UTF8
+```
 
+## Save checkpoint-integrity evidence
+
+```powershell
+$registry = Get-Content `
+  ".\evidence\registry\selected_model.json" `
+  -Raw |
+ConvertFrom-Json
+
+$integrityEvidence = [ordered]@{
+  expected_sha256 = $registry.checkpoint_sha256
+  actual_sha256 = (
+    Get-FileHash `
+      ".\artifacts\checkpoints\segformer_best\model.safetensors" `
+      -Algorithm SHA256
+  ).Hash.ToLower()
+  validation_threshold = $registry.validation_threshold
+  validated_at_utc = [DateTime]::UtcNow.ToString("o")
+}
+
+$integrityEvidence |
+  ConvertTo-Json |
+  Set-Content `
+    ".\docs\docker_validation\checkpoint_integrity.json" `
+    -Encoding UTF8
+```
+
+## Save prediction outputs
+
+```powershell
 Copy-Item `
   ".\docker_predicted_water_mask.png" `
   ".\docs\docker_validation\predicted_mask.png" `
   -Force
+
+Copy-Item `
+  ".\docker_predicted_water_mask_after_restart.png" `
+  ".\docs\docker_validation\predicted_mask_after_restart.png" `
+  -Force
 ```
 
-Only after build, startup, valid request, invalid request, restart, post-restart inference, logs, and clean shutdown are preserved should external Docker runtime validation be marked complete.
+Docker validation should only be marked complete after:
 
-## 10. Stop the service
+- the image builds successfully;
+- the service starts successfully;
+- `/health` succeeds;
+- `/ready` succeeds;
+- `/metadata` succeeds;
+- valid-image inference succeeds;
+- the returned result is verified as a PNG;
+- invalid content is rejected;
+- the service restarts successfully;
+- inference succeeds after restart;
+- the checkpoint hash matches the registry;
+- validation evidence is preserved;
+- the service is shut down cleanly.
+
+---
+
+# Publish the image to Docker Hub
+
+Only publish the image after confirming that it contains the production checkpoint and registry.
+
+## 1. Log in
+
+```powershell
+docker login
+```
+
+Complete authentication and wait for:
+
+```text
+Login Succeeded
+```
+
+Do not place Docker Hub passwords or access tokens inside scripts, the repository, or the README.
+
+## 2. Define the Docker Hub repository
+
+```powershell
+$dockerHubUser = Read-Host "Enter Docker Hub username"
+$repository = "$dockerHubUser/aereo-water-segmentation"
+
+Write-Host "Docker Hub repository:" $repository
+```
+
+The Docker Hub repository should be named:
+
+```text
+aereo-water-segmentation
+```
+
+A public repository allows reviewers to pull the image without authenticating.
+
+## 3. Tag the validated image
+
+```powershell
+docker tag `
+  aereo-water-segmentation:v3 `
+  "${repository}:v3.0.0"
+
+docker tag `
+  aereo-water-segmentation:v3 `
+  "${repository}:latest"
+```
+
+Verify the tags:
+
+```powershell
+docker image ls $repository
+```
+
+## 4. Push the images
+
+```powershell
+docker push "${repository}:v3.0.0"
+docker push "${repository}:latest"
+```
+
+No API container needs to be running during a Docker Hub push.
+
+Host ports `8000` and `8001` are not involved in the push.
+
+## 5. Verify the published image without using ports
+
+Pull the versioned image:
+
+```powershell
+docker pull "${repository}:v3.0.0"
+```
+
+Verify its checkpoint:
+
+```powershell
+docker run `
+  --rm `
+  --entrypoint sha256sum `
+  "${repository}:v3.0.0" `
+  /app/artifacts/checkpoints/segformer_best/model.safetensors
+```
+
+Expected:
+
+```text
+dc0af932cfbcb2f3ea9cfa0e18e0f8438636027de2579d534412f7472b4521a4
+```
+
+Verify its registry:
+
+```powershell
+docker run `
+  --rm `
+  --entrypoint python `
+  "${repository}:v3.0.0" `
+  -c "import json; d=json.load(open('/app/evidence/registry/selected_model.json')); print('hash:', d['checkpoint_sha256']); print('threshold:', d['validation_threshold'])"
+```
+
+Expected:
+
+```text
+hash: dc0af932cfbcb2f3ea9cfa0e18e0f8438636027de2579d534412f7472b4521a4
+threshold: 0.45
+```
+
+## 6. Record the Docker Hub digest
+
+```powershell
+$digest = docker image inspect `
+  "${repository}:v3.0.0" `
+  --format '{{index .RepoDigests 0}}'
+
+$digest
+```
+
+Save the Docker Hub repository and digest:
+
+```powershell
+New-Item `
+  -ItemType Directory `
+  -Force `
+  ".\docs\docker_validation" |
+Out-Null
+
+$repository |
+  Set-Content `
+    ".\docs\docker_validation\dockerhub_repository.txt" `
+    -Encoding UTF8
+
+$digest |
+  Set-Content `
+    ".\docs\docker_validation\dockerhub_digest.txt" `
+    -Encoding UTF8
+```
+
+---
+
+# Troubleshooting
+
+## Docker cannot connect to the daemon
+
+Run:
+
+```powershell
+docker desktop start
+docker context ls
+docker context use desktop-linux
+docker info
+```
+
+When necessary:
+
+```powershell
+wsl --shutdown
+```
+
+Restart Docker Desktop and open a new PowerShell window.
+
+---
+
+## Port 8000 is already allocated
+
+Inspect active containers:
+
+```powershell
+docker ps `
+  --format "table {{.Names}}\t{{.Ports}}"
+```
+
+Stop the conflicting container:
+
+```powershell
+docker rm -f <container-name>
+```
+
+Or use port `8001`:
+
+```powershell
+docker run `
+  -d `
+  --name aereo-water-segmentation-test `
+  -p 8001:8000 `
+  aereo-water-segmentation:v3
+```
+
+Then use:
+
+```text
+http://localhost:8001
+```
+
+---
+
+## `/health` works but `/ready` returns 503
+
+This means that the web server is alive but model initialization failed.
+
+Inspect logs:
 
 ```powershell
 docker compose `
-  -f .\deployment\compose.yaml `
+  -f ".\deployment\compose.yaml" `
+  logs `
+  --tail=300
+```
+
+Check:
+
+- checkpoint existence;
+- checkpoint SHA-256;
+- `preprocessor_config.json`;
+- `selected_threshold.json`;
+- selected-model registry path;
+- `validation_threshold`;
+- Compose volume paths.
+
+---
+
+## Missing `preprocessor_config.json`
+
+Verify:
+
+```powershell
+Test-Path `
+  ".\artifacts\checkpoints\segformer_best\preprocessor_config.json"
+```
+
+The complete deployment bundle must contain:
+
+```text
+config.json
+model.safetensors
+preprocessor_config.json
+selected_threshold.json
+```
+
+Copy the complete `segformer_best` directory.
+
+Do not copy only `model.safetensors`.
+
+The validated Kaggle deployment archive was exported as:
+
+```text
+aereo-water-segformer-v3-deployment.zip
+```
+
+---
+
+## Missing validation threshold
+
+```powershell
+$registry = Get-Content `
+  ".\evidence\registry\selected_model.json" `
+  -Raw |
+ConvertFrom-Json
+
+$registry.validation_threshold
+```
+
+Expected:
+
+```text
+0.45
+```
+
+Confirm the runtime registry environment path:
+
+```yaml
+AEREO_SELECTED_MODEL: /app/evidence/registry/selected_model.json
+```
+
+Confirm the registry mount:
+
+```yaml
+- ../evidence/registry:/app/evidence/registry:ro
+```
+
+---
+
+## Checkpoint-integrity validation failed
+
+Compare the registered and actual hashes:
+
+```powershell
+$registry = Get-Content `
+  ".\evidence\registry\selected_model.json" `
+  -Raw |
+ConvertFrom-Json
+
+$registry.checkpoint_sha256
+
+(
+  Get-FileHash `
+    ".\artifacts\checkpoints\segformer_best\model.safetensors" `
+    -Algorithm SHA256
+).Hash.ToLower()
+```
+
+Expected:
+
+```text
+dc0af932cfbcb2f3ea9cfa0e18e0f8438636027de2579d534412f7472b4521a4
+```
+
+Do not disable integrity validation.
+
+Do not modify the registered hash to accept an unrelated checkpoint.
+
+Restore the validated checkpoint bundle and recreate the service:
+
+```powershell
+docker compose `
+  -f ".\deployment\compose.yaml" `
+  down `
+  --remove-orphans
+
+docker compose `
+  -f ".\deployment\compose.yaml" `
+  up `
+  -d `
+  --force-recreate
+```
+
+---
+
+## Docker cannot copy the checkpoint during build
+
+Example:
+
+```text
+COPY artifacts/checkpoints/segformer_best ... not found
+CopyIgnoredFile
+```
+
+This means `.dockerignore` excluded the checkpoint from the Docker build context.
+
+The Dockerfile must contain:
+
+```dockerfile
+COPY artifacts/checkpoints/segformer_best \
+     /app/artifacts/checkpoints/segformer_best
+
+COPY evidence/registry/selected_model.json \
+     /app/evidence/registry/selected_model.json
+```
+
+A working `.dockerignore` is:
+
+```dockerignore
+.git
+**/__pycache__/
+**/*.pyc
+**/.ipynb_checkpoints/
+outputs/
+**/.pytest_cache/
+```
+
+After correcting `.dockerignore`, rebuild:
+
+```powershell
+docker build `
+  --pull `
+  --no-cache `
+  -f ".\deployment\Dockerfile" `
+  -t aereo-water-segmentation:v3 `
+  .
+```
+
+The build context should include the approximately 15 MB checkpoint instead of containing only a few kilobytes.
+
+---
+
+## The image contains no checkpoint
+
+Verify the image without Compose mounts:
+
+```powershell
+docker run `
+  --rm `
+  --entrypoint sha256sum `
+  aereo-water-segmentation:v3 `
+  /app/artifacts/checkpoints/segformer_best/model.safetensors
+```
+
+When the file is missing, the image is not self-contained.
+
+Correct the Dockerfile and `.dockerignore`, rebuild, and verify the checkpoint before pushing to Docker Hub.
+
+---
+
+## `curl: (26) Failed to open/read local data`
+
+This is a local input-file error, not an API or Docker failure.
+
+Do not use:
+
+```text
+sample_satellite_image.png
+```
+
+Use:
+
+```text
+evidence/inference/water_body_2496.jpg
+```
+
+Correct command:
+
+```powershell
+curl.exe `
+  -X POST `
+  "http://localhost:8000/segment" `
+  -F "image=@evidence/inference/water_body_2496.jpg;type=image/jpeg" `
+  --output docker_predicted_water_mask.png
+```
+
+---
+
+## .NET resolves a relative path from the wrong directory
+
+Use an absolute path generated by `Resolve-Path`:
+
+```powershell
+$file = (
+  Resolve-Path ".\docker_predicted_water_mask.png"
+).Path
+
+$bytes = [System.IO.File]::ReadAllBytes($file)
+```
+
+Compare the PowerShell and .NET working directories:
+
+```powershell
+Get-Location
+[System.IO.Directory]::GetCurrentDirectory()
+```
+
+Synchronize them when needed:
+
+```powershell
+[System.IO.Directory]::SetCurrentDirectory(
+  (Get-Location).Path
+)
+```
+
+---
+
+## Invalid input unexpectedly returns a mask
+
+The service should reject unsupported media types.
+
+Expected response:
+
+```text
+HTTP 415 Unsupported Media Type
+```
+
+Inspect the request content type and API logs before marking validation complete.
+
+---
+
+# Stop and clean up
+
+## Stop the Compose deployment
+
+```powershell
+docker compose `
+  -f ".\deployment\compose.yaml" `
   down `
   --remove-orphans
 ```
 
-Optional cleanup of the recreated image:
+## Remove a standalone container
+
+```powershell
+docker rm -f aereo-water-segmentation
+```
+
+## Remove temporary validation files
+
+```powershell
+Remove-Item `
+  ".\invalid.txt", `
+  ".\docker_predicted_water_mask.png", `
+  ".\docker_predicted_water_mask_after_restart.png" `
+  -Force `
+  -ErrorAction SilentlyContinue
+```
+
+## Optional image cleanup
 
 ```powershell
 docker image rm aereo-water-segmentation:v3
 ```
 
-Use the cleanup command only when you intentionally want the next run to rebuild the image.
+Only remove the image when intentionally forcing the next run to rebuild or repull it.
+
+---
+
+# Docker validation checklist
+
+Before marking Docker deployment complete, confirm:
+
+- [ ] Docker Desktop starts successfully.
+- [ ] `docker info` shows client and server information.
+- [ ] The Compose configuration resolves successfully.
+- [ ] The checkpoint bundle is complete.
+- [ ] `preprocessor_config.json` is present.
+- [ ] `selected_threshold.json` is present.
+- [ ] The host checkpoint SHA-256 matches the registry.
+- [ ] The image builds successfully.
+- [ ] The image contains the embedded checkpoint.
+- [ ] The embedded checkpoint hash is correct.
+- [ ] The embedded registry contains threshold `0.45`.
+- [ ] The container starts successfully.
+- [ ] `/health` succeeds.
+- [ ] `/ready` succeeds.
+- [ ] `/metadata` succeeds.
+- [ ] Valid-image inference returns HTTP `200`.
+- [ ] The prediction has a valid PNG signature.
+- [ ] Invalid input returns HTTP `415`.
+- [ ] Readiness succeeds after restart.
+- [ ] Inference succeeds after restart.
+- [ ] Logs and API responses are preserved.
+- [ ] The Docker Hub `v3.0.0` image is pushed.
+- [ ] The Docker Hub image is verified after pulling.
+- [ ] The immutable Docker Hub digest is recorded.
+- [ ] The service is shut down cleanly.
 
 ---
 
