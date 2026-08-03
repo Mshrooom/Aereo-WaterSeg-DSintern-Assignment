@@ -1,4 +1,4 @@
-# Aereo Water-Body Segmentation — Data Science Intern Assignment
+# Aereo Water-Body Segmentation - Data Science Intern Assignment
 
 [![CI](https://github.com/Mshrooom/Aereo-WaterSeg-DSintern-Assignment/actions/workflows/ci.yml/badge.svg)](https://github.com/Mshrooom/Aereo-WaterSeg-DSintern-Assignment/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/badge/release-v3.0.0-blue)](https://github.com/Mshrooom/Aereo-WaterSeg-DSintern-Assignment/releases/tag/v3.0.0)
@@ -837,7 +837,7 @@ cd <path-to-aereo-water-segmentation>
 For example:
 
 ```powershell
-cd D:\aereotasksubmission_maanvibansal\Source\aereo-water-segmentation
+cd D:\aereotasksubmission\Source\aereo-water-segmentation
 ```
 
 ---
